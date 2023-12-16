@@ -1,18 +1,20 @@
-# Rogue
+# Exanis
 
-This is my creation of a classic roguelike.
-I've tried to make this as "immersive" as possible.
-By that I mean that I will not display stats like hp.
+I've decided to create a ASCII RogueLike just as a hobby project.  
+For now I don't have any specific plans for it, and I don't know how long
+I will take this project.
 
 ## How to play
 
-Clone this repository like so:
+Exanis is actually only dependant on ncurses for now. To install ncurses type:  
 ```
-git clone repo rogue
+sudo apt install libncurses5
 ```
 
-And compile:
+To play you need to compile from source  
 ```
-chmod +x build.sh
-./build.sh
+git clone https://github.com/pinguxx28/exanis.git
+cd exanis
+make
+./bin/rogue
 ```
