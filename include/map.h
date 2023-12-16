@@ -3,6 +3,7 @@
 
 #define MAP_HEIGHT 10
 #define MAP_WIDTH 40
+#define MAP_SIZE (MAP_HEIGHT * MAP_WIDTH)
 #define NDRAWN (1 << 14)
 
 int get_mapch(int y, int x);

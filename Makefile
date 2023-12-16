@@ -15,7 +15,7 @@ OBJECTS := $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SOURCES))
 EXECUTABLE := $(BINDIR)/rogue
 
 # create obj/ and bin/ if doesn't exist
-$(shell mkdir -o $(OBJDIR) $(BINDIR))
+$(shell mkdir -p $(OBJDIR) $(BINDIR))
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
