@@ -6,23 +6,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-u16 *map;
-u16 *seen_map;
+int *map;
+int *seen_map;
 
-u16 get_mapch(i16 y, i16 x) { return map[y * MAP_WIDTH + x]; }
-u16 get_seen_mapch(i16 y, i16 x) { return seen_map[y * MAP_WIDTH + x]; }
-void set_mapch(i16 y, i16 x, u16 ch) { map[y * MAP_WIDTH + x] = ch; }
-void set_seen_mapch(i16 y, i16 x, u16 ch) { seen_map[y * MAP_WIDTH + x] = ch; }
+int get_mapch(int y, int x) { return map[y * MAP_WIDTH + x]; }
+int get_seen_mapch(int y, int x) { return seen_map[y * MAP_WIDTH + x]; }
+void set_mapch(int y, int x, int ch) { map[y * MAP_WIDTH + x] = ch; }
+void set_seen_mapch(int y, int x, int ch) { seen_map[y * MAP_WIDTH + x] = ch; }
 
 void load_map(const char *filepath) {
-    map = calloc(MAP_HEIGHT * MAP_WIDTH, sizeof(u16));
-    seen_map = calloc(MAP_HEIGHT * MAP_WIDTH, sizeof(u16));
+    map = calloc(MAP_HEIGHT * MAP_WIDTH, sizeof(int));
+    seen_map = calloc(MAP_HEIGHT * MAP_WIDTH, sizeof(int));
 
     FILE *file = fopen(filepath, "r");
     assert(file != NULL);
 
-    i8 c;
-    u32 i = 0;
+    int c;
+    int i = 0;
     while ((c = getc(file)) != EOF) {
         if (c == '\n')
             continue;
@@ -45,7 +45,7 @@ void print_map(void) {
     }
 }
 
-void reveal_partial_map(i16 ypos, i16 xpos) {
+void reveal_partial_map(int ypos, int xpos) {
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
             float dist = sqrt(pow(ypos - y, 2) + pow(xpos - x, 2));

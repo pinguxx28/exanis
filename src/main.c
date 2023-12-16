@@ -1,11 +1,10 @@
 #include "../include/colors.h"
-#include "../include/defs.h"
 #include "../include/map.h"
 #include "../include/player.h"
 #include <ncurses.h>
 
 int main() {
-    u8 c = 0;
+    int c = 'k';
 
     initscr();
     noecho();
@@ -24,9 +23,7 @@ int main() {
         clear_player(player);
 
         /* updating */
-        if (c) {
-            move_player(player, c);
-        }
+        move_player(player, c);
 
         /* drawing */
         print_map();

@@ -1,10 +1,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "defs.h"
-
 typedef struct {
-    i16 x, y;
+    int x, y;
 } player_t;
 
 player_t *init_player(void);

@@ -28,14 +28,14 @@ void draw_player(player_t *player) {
 }
 
 void clear_player(player_t *player) {
-    u16 c = get_mapch(player->y, player->x);
+    int c = get_mapch(player->y, player->x);
     mvaddch(player->y, player->x, c);
 }
 
 /* clang-format off */
 void move_player(player_t *player, int c) {
-    i16 newx = player->x;
-    i16 newy = player->y;
+    int newx = player->x;
+    int newy = player->y;
 
     if (c == 'h') newx--;
     else if (c == 'l') newx++;
