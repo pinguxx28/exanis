@@ -1,5 +1,6 @@
 #include "../include/colors.h"
 #include "../include/defs.h"
+#include "../include/map.h"
 #include "../include/player.h"
 #include <ncurses.h>
 
@@ -15,7 +16,11 @@ int main() {
     start_color();
     init_color_pairs();
 
+    load_map("assets/map.txt");
+
     player_t *player = init_player();
+
+    print_map();
 
     do {
         clear_player(player);

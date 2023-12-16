@@ -1,14 +1,23 @@
 #include "../include/player.h"
 
 #include <ncurses.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 #include "../include/colors.h"
+#include "../include/map.h"
 
 player_t *init_player(void) {
     player_t *player = calloc(1, sizeof(player_t));
-    player->x = 0;
-    player->y = 0;
+
+    while (true) {
+        player->x = rand() % MAP_HEIGHT;
+        player->y = rand() % MAP_WIDTH;
+
+        if (map_index(player->y, player->x) == '.')
+            break;
+    }
+
     return player;
 }
 
@@ -19,19 +28,29 @@ void draw_player(player_t *player) {
 }
 
 void clear_player(player_t *player) {
-    /* clear the last player position */
-    mvaddch(player->y, player->x, ' ');
+    u16 c = map_index(player->y, player->x);
+    mvaddch(player->y, player->x, c);
 }
 
+/* clang-format off */
 void move_player(player_t *player, int c) {
-    /* clang-format off */
-    if (c == 'h') player->x--;
-    else if (c == 'l') player->x++;
-    else if (c == 'k') player->y--;
-    else if (c == 'j') player->y++;
-    else if (c == 'y') { player->y--; player->x--; }
-    else if (c == 'u') { player->y--; player->x++; }
-    else if (c == 'b') { player->y++; player->x--; }
-    else if (c == 'n') { player->y++; player->x++; }
-    /* clang-format on */
+    i16 newx = player->x;
+    i16 newy = player->y;
+
+    if (c == 'h') newx--;
+    else if (c == 'l') newx++;
+    else if (c == 'k') newy--;
+    else if (c == 'j') newy++;
+    else if (c == 'y') { newy--; newx--; }
+    else if (c == 'u') { newy--; newx++; }
+    else if (c == 'b') { newy++; newx--; }
+    else if (c == 'n') { newy++; newx++; }
+
+    int m = map_index(newy, newx);
+    if (m == '.' || m == '=' || m == '#') {
+        player->y = newy;
+        player->x = newx;
+    }
+
 }
+/* clang-format on */
