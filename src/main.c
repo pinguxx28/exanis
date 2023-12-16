@@ -1,3 +1,4 @@
+#include "../include/colors.h"
 #include "../include/defs.h"
 #include "../include/player.h"
 #include <ncurses.h>
@@ -9,6 +10,10 @@ int main() {
     noecho();
     raw();
     curs_set(0);
+
+    ensure_colors();
+    start_color();
+    init_color_pairs();
 
     player_t *player = init_player();
 
