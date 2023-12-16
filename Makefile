@@ -3,7 +3,7 @@
 
 CC := gcc
 CFLAGS := -Wall -Wextra -std=c99
-LDFLAGS := -lncurses
+LDFLAGS := -lncurses -lm
 
 SRCDIR := src
 OBJDIR := obj

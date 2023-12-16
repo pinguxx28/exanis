@@ -20,8 +20,6 @@ int main() {
 
     player_t *player = init_player();
 
-    print_map();
-
     do {
         clear_player(player);
 
@@ -31,6 +29,7 @@ int main() {
         }
 
         /* drawing */
+        print_map();
         draw_player(player);
         refresh();
     } while ((c = getch()) != 'q');

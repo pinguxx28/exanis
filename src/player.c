@@ -14,7 +14,7 @@ player_t *init_player(void) {
         player->x = rand() % MAP_HEIGHT;
         player->y = rand() % MAP_WIDTH;
 
-        if (map_index(player->y, player->x) == '.')
+        if (get_mapch(player->y, player->x) == '.')
             break;
     }
 
@@ -28,7 +28,7 @@ void draw_player(player_t *player) {
 }
 
 void clear_player(player_t *player) {
-    u16 c = map_index(player->y, player->x);
+    u16 c = get_mapch(player->y, player->x);
     mvaddch(player->y, player->x, c);
 }
 
@@ -46,11 +46,12 @@ void move_player(player_t *player, int c) {
     else if (c == 'b') { newy++; newx--; }
     else if (c == 'n') { newy++; newx++; }
 
-    int m = map_index(newy, newx);
-    if (m == '.' || m == '=' || m == '#') {
+    int ch = get_mapch(newy, newx);
+    if (ch == '.' || ch == '=' || ch == '#') {
         player->y = newy;
         player->x = newx;
     }
 
+    reveal_partial_map(player->y, player->x);
 }
 /* clang-format on */
