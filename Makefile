@@ -2,7 +2,7 @@
 # 16.12.2023
 
 CC := gcc
-CFLAGS := -Wall -Wextra -std=c99
+CFLAGS := -Wall -Wextra -std=c99 -g
 LDFLAGS := -lncurses -lm
 
 SRCDIR := src

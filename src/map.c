@@ -18,6 +18,14 @@ typedef struct {
 #define N_SECTIONS 1000
 section_t sections[N_SECTIONS];
 
+typedef struct {
+    int x, y, w, h;
+    bool active;
+} room_t;
+
+#define N_ROOMS 500
+room_t rooms[N_ROOMS];
+
 int get_mapch(int y, int x) {
     if (y < 0 || y >= MAP_HEIGHT || x < 0 || x >= MAP_WIDTH) {
         return 0;
@@ -118,8 +126,8 @@ void create_sections(section_t section) {
     section_t section1, section2;
     int split_horiz = rand() % 2;
 
-    /* end if sections is smaloop_lvl enough */
-    if (section.w <= 15 || section.h <= 15) {
+    /* end if sections is small enough */
+    if (section.w <= 20 || section.h <= 20) {
         create_section(section.x, section.y, section.w, section.h);
         return;
     }
@@ -151,6 +159,59 @@ void create_sections(section_t section) {
     create_sections(section2);
 }
 
+room_t new_room(int x, int y, int w, int h) {
+    for (int i = 0; i < N_ROOMS; i++) {
+        if (rooms[i].active) {
+            continue;
+        }
+
+        rooms[i].x = x;
+        rooms[i].y = y;
+        rooms[i].w = w;
+        rooms[i].h = h;
+        rooms[i].active = true;
+        return rooms[i];
+    }
+
+    fprintf(debug_file, "no space for more rooms, this should never happen\n");
+    exit(1);
+}
+
+void create_rooms(void) {
+    for (int i = 0; i < N_SECTIONS; i++) {
+        if (!sections[i].active) {
+            break;
+        }
+
+        int x1, y1, x2, y2;
+
+        /* clang-format off */
+        do {
+            x1 = random_i(sections[i].x + 1, sections[i].x + sections[i].w / 2 - 2);
+            y1 = random_i(sections[i].y + 1, sections[i].y + sections[i].h / 2 - 2);
+            x2 = random_i(sections[i].x + sections[i].w / 2 + 2, sections[i].x + sections[i].w - 1);
+            y2 = random_i(sections[i].y + sections[i].h / 2 + 2, sections[i].y + sections[i].h - 1);
+        } while (x2 - x1 < 3 || y2 - y1 < 3);
+        /* clang-format on */
+
+        new_room(x1, y1, x2 - x1, y2 - y1);
+    }
+}
+
+void fill_rooms(void) {
+    for (int i = 0; i < N_ROOMS; i++) {
+        if (!rooms[i].active) {
+            break;
+        }
+
+        for (int x = rooms[i].x; x < rooms[i].x + rooms[i].w; x++) {
+            for (int y = rooms[i].y; y < rooms[i].y + rooms[i].h; y++) {
+                set_mapch(y, x, '.');
+            }
+        }
+    }
+}
+
 void generate_map(void) {
     section_t map = {
         .x = 0,
@@ -160,4 +221,13 @@ void generate_map(void) {
     };
 
     create_sections(map);
+    create_rooms();
+    fill_rooms();
+
+    for (int i = 0; i < N_SECTIONS; i++) {
+        int y = sections[i].y + sections[i].h / 2;
+        int x = sections[i].x + sections[i].w / 2;
+
+        set_mapch(y, x, '#');
+    }
 }
