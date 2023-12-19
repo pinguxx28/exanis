@@ -13,7 +13,6 @@ int *seen_map;
 typedef struct {
     int x, y, w, h;
     bool active;
-    int ll; /* loop level */
 } room_t;
 
 #define N_ROOMS 1000
@@ -82,31 +81,20 @@ void init_maps(void) {
 
     for (int i = 0; i < N_ROOMS; i++) {
         rooms[i].active = false;
-        rooms[i].ll = 0;
     }
 }
 
-room_t new_room(int x, int y, int w, int h, int ll) {
+room_t new_room(int x, int y, int w, int h) {
     return (room_t){
         .x = x,
         .y = y,
         .w = w,
         .h = h,
-        .active = false, /* doesn't really matter */
-        .ll = ll + 1,
+        .active = false,
     };
 }
 
 room_t create_room(int x, int y, int w, int h) {
-    static int c = 'a';
-    c++;
-
-    for (int i = y; i < y + h; i++) {
-        for (int j = x; j < x + w; j++) {
-            set_mapch(i, j, c);
-        }
-    }
-
     int i;
     for (i = 0; i < N_ROOMS; i++) {
         if (rooms[i].active) {
@@ -123,48 +111,44 @@ room_t create_room(int x, int y, int w, int h) {
 
     fprintf(debug_file, "couldn't create room, this should never happen\n");
     fprintf(debug_file, "i=%d\n", i);
-    return rooms[0]; /* placeholder value */
+    return (room_t){0}; /* placeholder value because function must return */
 }
 
-void bsp(room_t room) {
+void create_sections(room_t room) {
     room_t room1, room2;
     int split_horiz = rand() % 2;
 
-    /* end if rooms is small enough */
-    // if (room.w * room.h <= (rand() % 100) + 100) {
-    // if (room.ll == 4) {
+    /* end if rooms is smaloop_lvl enough */
     if (room.w <= 15 || room.h <= 15) {
         create_room(room.x, room.y, room.w, room.h);
         return;
     }
 
     /* force split in the desired direction */
-    float ratio = 2;
-    if (room.w * ratio > room.h) {
+    float size_ratio = 2;
+    if (room.w * size_ratio > room.h) {
         split_horiz = 0;
     }
-    if (room.h * ratio > room.w) {
+    if (room.h * size_ratio > room.w) {
         split_horiz = 1;
     }
 
-    // float offset = (rand() % 6) / 10.0 + 0.25;
-    float offset = random_f(0.3, 0.7);
-    // fprintf(debug_file, "%.2f\n", offset);
+    float split_ratio = random_f(0.3, 0.7);
 
     if (split_horiz) {
-        int split_point = room.h * offset;
-        room1 = new_room(room.x, room.y, room.w, split_point, room.ll);
+        int split_point = room.h * split_ratio;
+        room1 = new_room(room.x, room.y, room.w, split_point);
         room2 = new_room(room.x, room.y + split_point, room.w,
-                         room.h - split_point, room.ll);
+                         room.h - split_point);
     } else {
-        int split_point = room.w * offset;
-        room1 = new_room(room.x, room.y, split_point, room.h, room.ll);
+        int split_point = room.w * split_ratio;
+        room1 = new_room(room.x, room.y, split_point, room.h);
         room2 = new_room(room.x + split_point, room.y, room.w - split_point,
-                         room.h, room.ll);
+                         room.h);
     }
 
-    bsp(room1);
-    bsp(room2);
+    create_sections(room1);
+    create_sections(room2);
 }
 
 void generate_map(void) {
@@ -173,8 +157,7 @@ void generate_map(void) {
         .y = 0,
         .w = MAP_WIDTH,
         .h = MAP_HEIGHT,
-        .ll = 0,
     };
 
-    bsp(map);
+    create_sections(map);
 }
