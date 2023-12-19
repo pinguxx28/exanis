@@ -13,10 +13,10 @@ int *seen_map;
 typedef struct {
     int x, y, w, h;
     bool active;
-} room_t;
+} section_t;
 
-#define N_ROOMS 1000
-room_t rooms[N_ROOMS];
+#define N_SECTIONS 1000
+section_t sections[N_SECTIONS];
 
 int get_mapch(int y, int x) {
     if (y < 0 || y >= MAP_HEIGHT || x < 0 || x >= MAP_WIDTH) {
@@ -26,7 +26,6 @@ int get_mapch(int y, int x) {
     return map[y * MAP_WIDTH + x];
 }
 int get_seen_mapch(int y, int x) {
-    /* count spaces outside the map as empty space */
     if (y < 0 || y >= MAP_HEIGHT || x < 0 || x >= MAP_WIDTH) {
         return 0;
     }
@@ -79,13 +78,13 @@ void init_maps(void) {
         map[i] = ' ';
     }
 
-    for (int i = 0; i < N_ROOMS; i++) {
-        rooms[i].active = false;
+    for (int i = 0; i < N_SECTIONS; i++) {
+        sections[i].active = false;
     }
 }
 
-room_t new_room(int x, int y, int w, int h) {
-    return (room_t){
+section_t new_section(int x, int y, int w, int h) {
+    return (section_t){
         .x = x,
         .y = y,
         .w = w,
@@ -94,65 +93,66 @@ room_t new_room(int x, int y, int w, int h) {
     };
 }
 
-room_t create_room(int x, int y, int w, int h) {
-    int i;
-    for (i = 0; i < N_ROOMS; i++) {
-        if (rooms[i].active) {
+section_t create_section(int x, int y, int w, int h) {
+    int i; /* debugging purposes */
+
+    for (i = 0; i < N_SECTIONS; i++) {
+        if (sections[i].active) {
             continue;
         }
 
-        rooms[i].x = x;
-        rooms[i].y = y;
-        rooms[i].w = w;
-        rooms[i].h = h;
-        rooms[i].active = true;
-        return rooms[i];
+        sections[i].x = x;
+        sections[i].y = y;
+        sections[i].w = w;
+        sections[i].h = h;
+        sections[i].active = true;
+        return sections[i];
     }
 
-    fprintf(debug_file, "couldn't create room, this should never happen\n");
+    fprintf(debug_file, "couldn't create section, this should never happen\n");
     fprintf(debug_file, "i=%d\n", i);
-    return (room_t){0}; /* placeholder value because function must return */
+    return (section_t){0}; /* placeholder value because function must return */
 }
 
-void create_sections(room_t room) {
-    room_t room1, room2;
+void create_sections(section_t section) {
+    section_t section1, section2;
     int split_horiz = rand() % 2;
 
-    /* end if rooms is smaloop_lvl enough */
-    if (room.w <= 15 || room.h <= 15) {
-        create_room(room.x, room.y, room.w, room.h);
+    /* end if sections is smaloop_lvl enough */
+    if (section.w <= 15 || section.h <= 15) {
+        create_section(section.x, section.y, section.w, section.h);
         return;
     }
 
     /* force split in the desired direction */
     float size_ratio = 2;
-    if (room.w * size_ratio > room.h) {
+    if (section.w * size_ratio > section.h) {
         split_horiz = 0;
     }
-    if (room.h * size_ratio > room.w) {
+    if (section.h * size_ratio > section.w) {
         split_horiz = 1;
     }
 
     float split_ratio = random_f(0.3, 0.7);
 
     if (split_horiz) {
-        int split_point = room.h * split_ratio;
-        room1 = new_room(room.x, room.y, room.w, split_point);
-        room2 = new_room(room.x, room.y + split_point, room.w,
-                         room.h - split_point);
+        int split_point = section.h * split_ratio;
+        section1 = new_section(section.x, section.y, section.w, split_point);
+        section2 = new_section(section.x, section.y + split_point, section.w,
+                               section.h - split_point);
     } else {
-        int split_point = room.w * split_ratio;
-        room1 = new_room(room.x, room.y, split_point, room.h);
-        room2 = new_room(room.x + split_point, room.y, room.w - split_point,
-                         room.h);
+        int split_point = section.w * split_ratio;
+        section1 = new_section(section.x, section.y, split_point, section.h);
+        section2 = new_section(section.x + split_point, section.y,
+                               section.w - split_point, section.h);
     }
 
-    create_sections(room1);
-    create_sections(room2);
+    create_sections(section1);
+    create_sections(section2);
 }
 
 void generate_map(void) {
-    room_t map = {
+    section_t map = {
         .x = 0,
         .y = 0,
         .w = MAP_WIDTH,
