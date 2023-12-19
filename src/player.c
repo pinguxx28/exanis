@@ -8,15 +8,10 @@
 #include "../include/map.h"
 
 player_t *init_player(void) {
-    player_t *player = calloc(1, sizeof(player_t));
+    player_t *player = malloc(sizeof(player_t));
 
-    while (true) {
-        player->x = rand() % MAP_HEIGHT;
-        player->y = rand() % MAP_WIDTH;
-
-        if (get_mapch(player->y, player->x) == '.')
-            break;
-    }
+    player->x = 0;
+    player->y = 0;
 
     return player;
 }
@@ -52,6 +47,6 @@ void move_player(player_t *player, int c) {
         player->x = newx;
     }
 
-    reveal_partial_map(player->y, player->x);
+    // reveal_partial_map(player->y, player->x);
 }
 /* clang-format on */

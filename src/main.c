@@ -1,9 +1,17 @@
 #include "../include/colors.h"
+#include "../include/debug.h"
 #include "../include/map.h"
 #include "../include/player.h"
 #include <ncurses.h>
+#include <stdlib.h>
+#include <time.h>
 
 int main() {
+    player_t *player = init_player();
+
+    srand(time(0));
+    open_debug_file("debug.txt");
+
     int c = 'k';
 
     initscr();
@@ -15,9 +23,8 @@ int main() {
     start_color();
     init_color_pairs();
 
-    load_map("assets/map.txt");
-
-    player_t *player = init_player();
+    init_maps();
+    generate_map();
 
     do {
         clear_player(player);
@@ -32,6 +39,7 @@ int main() {
     } while ((c = getch()) != 'q');
 
     endwin();
+    free(player);
 
     return 0;
 }
