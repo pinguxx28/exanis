@@ -7,6 +7,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#define SECTION_MIN_W 15
+#define SECTION_MIN_H 15
+
 int *map;
 int *seen_map;
 
@@ -127,7 +130,7 @@ void create_sections(section_t section) {
     int split_horiz = rand() % 2;
 
     /* end if sections is small enough */
-    if (section.w <= 20 || section.h <= 20) {
+    if (section.w <= SECTION_MIN_W || section.h <= SECTION_MIN_H) {
         create_section(section.x, section.y, section.w, section.h);
         return;
     }
@@ -144,12 +147,12 @@ void create_sections(section_t section) {
     float split_ratio = random_f(0.3, 0.7);
 
     if (split_horiz) {
-        int split_point = section.h * split_ratio;
+        int split_point = random_i(7, section.h - 7);
         section1 = new_section(section.x, section.y, section.w, split_point);
         section2 = new_section(section.x, section.y + split_point, section.w,
                                section.h - split_point);
     } else {
-        int split_point = section.w * split_ratio;
+        int split_point = random_i(7, section.w - 7);
         section1 = new_section(section.x, section.y, split_point, section.h);
         section2 = new_section(section.x + split_point, section.y,
                                section.w - split_point, section.h);
@@ -191,7 +194,7 @@ void create_rooms(void) {
             y1 = random_i(sections[i].y + 1, sections[i].y + sections[i].h / 2 - 2);
             x2 = random_i(sections[i].x + sections[i].w / 2 + 2, sections[i].x + sections[i].w - 1);
             y2 = random_i(sections[i].y + sections[i].h / 2 + 2, sections[i].y + sections[i].h - 1);
-        } while (x2 - x1 < 3 || y2 - y1 < 3);
+        } while (x2 - x1 < 4 || y2 - y1 < 4);
         /* clang-format on */
 
         new_room(x1, y1, x2 - x1, y2 - y1);
@@ -212,6 +215,35 @@ void fill_rooms(void) {
     }
 }
 
+void make_corridors(void) {
+    for (int i = 0; i < N_ROOMS; i++) {
+        if (!rooms[i].active) {
+            break;
+        }
+
+        int cx1 = rooms[i].x + rooms[i].w / 2;
+        int cy1 = rooms[i].y + rooms[i].h / 2;
+
+        int j = i + 1;
+        if (!rooms[j].active) {
+            j = i;
+        }
+
+        int cx2 = rooms[j].x + rooms[j].w / 2;
+        int cy2 = rooms[j].y + rooms[j].h / 2;
+
+        while (cx1 != cx2) {
+            set_mapch(cy1, cx1, '.');
+            cx1 += (cx1 < cx2) ? 1 : -1;
+        }
+
+        while (cy1 != cy2) {
+            set_mapch(cy1, cx1, '.');
+            cy1 += (cy1 < cy2) ? 1 : -1;
+        }
+    }
+}
+
 void generate_map(void) {
     section_t map = {
         .x = 0,
@@ -223,11 +255,7 @@ void generate_map(void) {
     create_sections(map);
     create_rooms();
     fill_rooms();
-
-    for (int i = 0; i < N_SECTIONS; i++) {
-        int y = sections[i].y + sections[i].h / 2;
-        int x = sections[i].x + sections[i].w / 2;
-
-        set_mapch(y, x, '#');
-    }
+    make_corridors();
+    fprintf(debug_file, "%d %d %d %d\n", rooms[0].x, rooms[0].y, rooms[0].w,
+            rooms[0].h);
 }
