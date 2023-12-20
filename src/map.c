@@ -51,9 +51,6 @@ void print_map(void) {
         int x = i % MAP_WIDTH;
         int y = i / MAP_WIDTH;
 
-        mvaddch(y, x, get_mapch(y, x));
-
-#if 0
         int tile = get_seen_mapch(y, x);
 
         /* only draw not drawn tiles */
@@ -64,7 +61,6 @@ void print_map(void) {
         /* draw tile and unmark it not drawn */
         mvaddch(y, x, tile ^ NDRAWN);
         set_seen_mapch(y, x, tile ^ NDRAWN);
-#endif
     }
 }
 
@@ -73,9 +69,9 @@ void reveal_partial_map(int ypos, int xpos) {
         int x = i % MAP_WIDTH;
         int y = i / MAP_WIDTH;
 
-        float dist = sqrt(pow(ypos - y, 2) + pow(xpos - x, 2));
+        float dist = distance(x, y, xpos, ypos);
 
-        if (dist < 2.5) {
+        if (dist < 3.5) {
             set_seen_mapch(y, x, get_mapch(y, x) | NDRAWN);
         }
     }
@@ -207,7 +203,19 @@ void fill_rooms(void) {
             break;
         }
 
+        /* sides of room */
+        for (int y = rooms[i].y; y < rooms[i].y + rooms[i].h; y++) {
+            set_mapch(y, rooms[i].x - 1, '|');
+            set_mapch(y, rooms[i].x + rooms[i].w, '|');
+        }
+        /* top and bottom */
+        for (int x = rooms[i].x - 1; x < rooms[i].x + rooms[i].w + 1; x++) {
+            set_mapch(rooms[i].y - 1, x, '-');
+            set_mapch(rooms[i].y + rooms[i].h, x, '-');
+        }
+
         for (int x = rooms[i].x; x < rooms[i].x + rooms[i].w; x++) {
+
             for (int y = rooms[i].y; y < rooms[i].y + rooms[i].h; y++) {
                 set_mapch(y, x, '.');
             }
@@ -233,12 +241,26 @@ void make_corridors(void) {
         int cy2 = rooms[j].y + rooms[j].h / 2;
 
         while (cx1 != cx2) {
-            set_mapch(cy1, cx1, '.');
+            int c = '.';
+            int ch = get_mapch(cy1, cx1);
+
+            if (ch != '.') {
+                c = '#';
+            }
+
+            set_mapch(cy1, cx1, c);
             cx1 += (cx1 < cx2) ? 1 : -1;
         }
 
         while (cy1 != cy2) {
-            set_mapch(cy1, cx1, '.');
+            int c = '.';
+            int ch = get_mapch(cy1, cx1);
+
+            if (ch != '.') {
+                c = '#';
+            }
+
+            set_mapch(cy1, cx1, c);
             cy1 += (cy1 < cy2) ? 1 : -1;
         }
     }

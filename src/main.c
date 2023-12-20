@@ -7,8 +7,6 @@
 #include <time.h>
 
 int main() {
-    player_t *player = init_player();
-
     srand(time(0));
     open_debug_file("debug.txt");
 
@@ -25,6 +23,8 @@ int main() {
 
     init_maps();
     generate_map();
+
+    player_t *player = init_player();
 
     do {
         clear_player(player);

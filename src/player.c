@@ -5,13 +5,16 @@
 #include <stdlib.h>
 
 #include "../include/colors.h"
+#include "../include/helper.h"
 #include "../include/map.h"
 
 player_t *init_player(void) {
     player_t *player = malloc(sizeof(player_t));
 
-    player->x = 0;
-    player->y = 0;
+    do {
+        player->x = random_i(0, MAP_WIDTH);
+        player->y = random_i(0, MAP_HEIGHT);
+    } while (get_mapch(player->y, player->x) != '.');
 
     return player;
 }
@@ -47,6 +50,6 @@ void move_player(player_t *player, int c) {
         player->x = newx;
     }
 
-    // reveal_partial_map(player->y, player->x);
+    reveal_partial_map(player->y, player->x);
 }
 /* clang-format on */
