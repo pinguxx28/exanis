@@ -12,7 +12,7 @@ INCDIR := include
 
 SOURCES := $(wildcard $(SRCDIR)/*.c)
 OBJECTS := $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SOURCES))
-EXECUTABLE := $(BINDIR)/rogue
+EXECUTABLE := $(BINDIR)/exanis
 
 # create obj/ and bin/ if doesn't exist
 $(shell mkdir -p $(OBJDIR) $(BINDIR))
