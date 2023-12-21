@@ -2,13 +2,25 @@
 
 #include "../include/debug.h"
 #include "../include/helper.h"
-#include <math.h>
 #include <ncurses.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
 #define SECTION_MIN_W 15
 #define SECTION_MIN_H 15
+
+#define N_SECTIONS 1000
+#define N_ROOMS 500
+
+#define CHECK_BOUNDS(y, x, fname)                                              \
+    do {                                                                       \
+        if ((y) < 0 || (y) >= MAP_HEIGHT || (x) < 0 || (x) >= MAP_WIDTH) {     \
+            fprintf(debug_file, "trying to access out of bounds\n");           \
+            fprintf(debug_file, "inside of %s\n", fname);                      \
+            fprintf(debug_file, "y: %d, x: %d,\n", (y), (x));                  \
+            exit(1);                                                           \
+        }                                                                      \
+    } while (0)
 
 int *map;
 int *seen_map;
@@ -18,33 +30,35 @@ typedef struct {
     bool active;
 } section_t;
 
-#define N_SECTIONS 1000
-section_t sections[N_SECTIONS];
-
 typedef struct {
     int x, y, w, h;
     bool active;
 } room_t;
 
-#define N_ROOMS 500
+int section_ptr = 0;
+int room_ptr = 0;
+section_t sections[N_SECTIONS];
 room_t rooms[N_ROOMS];
 
 int get_mapch(int y, int x) {
-    if (y < 0 || y >= MAP_HEIGHT || x < 0 || x >= MAP_WIDTH) {
-        return 0;
-    }
-
+    CHECK_BOUNDS(y, x, "get_mapch");
     return map[y * MAP_WIDTH + x];
 }
-int get_seen_mapch(int y, int x) {
-    if (y < 0 || y >= MAP_HEIGHT || x < 0 || x >= MAP_WIDTH) {
-        return 0;
-    }
 
+int get_seen_mapch(int y, int x) {
+    CHECK_BOUNDS(y, x, "get_seen_mapch");
     return seen_map[y * MAP_WIDTH + x];
 }
-void set_mapch(int y, int x, int ch) { map[y * MAP_WIDTH + x] = ch; }
-void set_seen_mapch(int y, int x, int ch) { seen_map[y * MAP_WIDTH + x] = ch; }
+
+void set_mapch(int y, int x, int ch) {
+    CHECK_BOUNDS(y, x, "set_mapch");
+    map[y * MAP_WIDTH + x] = ch;
+}
+
+void set_seen_mapch(int y, int x, int ch) {
+    CHECK_BOUNDS(y, x, "set_seen_mapch");
+    seen_map[y * MAP_WIDTH + x] = ch;
+}
 
 void print_map(void) {
     for (int i = 0; i < MAP_SIZE; i++) {
@@ -64,33 +78,29 @@ void print_map(void) {
     }
 }
 
-void reveal_partial_map(int ypos, int xpos) {
+void reveal_partial_map(int ypos, int xpos, float fov) {
     for (int i = 0; i < MAP_SIZE; i++) {
         int x = i % MAP_WIDTH;
         int y = i / MAP_WIDTH;
 
         float dist = distance(x, y, xpos, ypos);
 
-        if (dist < 3.5) {
+        if (dist < fov) {
             set_seen_mapch(y, x, get_mapch(y, x) | NDRAWN);
         }
     }
 }
 
-void init_maps(void) {
+static void init_maps(void) {
     map = calloc(MAP_SIZE, sizeof(int));
     seen_map = calloc(MAP_SIZE, sizeof(int));
 
     for (int i = 0; i < MAP_SIZE; i++) {
         map[i] = ' ';
     }
-
-    for (int i = 0; i < N_SECTIONS; i++) {
-        sections[i].active = false;
-    }
 }
 
-section_t new_section(int x, int y, int w, int h) {
+static section_t make_section(int x, int y, int w, int h) {
     return (section_t){
         .x = x,
         .y = y,
@@ -100,34 +110,31 @@ section_t new_section(int x, int y, int w, int h) {
     };
 }
 
-section_t create_section(int x, int y, int w, int h) {
-    int i; /* debugging purposes */
+static section_t append_section(section_t s) {
+    sections[section_ptr].x = s.x;
+    sections[section_ptr].y = s.y;
+    sections[section_ptr].w = s.w;
+    sections[section_ptr].h = s.h;
+    sections[section_ptr].active = true;
 
-    for (i = 0; i < N_SECTIONS; i++) {
-        if (sections[i].active) {
-            continue;
-        }
-
-        sections[i].x = x;
-        sections[i].y = y;
-        sections[i].w = w;
-        sections[i].h = h;
-        sections[i].active = true;
-        return sections[i];
+    section_ptr++;
+    if (section_ptr == N_SECTIONS) {
+        fprintf(debug_file, "no space for section\n");
+        fprintf(debug_file, "aborting\n");
     }
 
-    fprintf(debug_file, "couldn't create section, this should never happen\n");
-    fprintf(debug_file, "i=%d\n", i);
-    return (section_t){0}; /* placeholder value because function must return */
+    return sections[section_ptr];
 }
 
-void create_sections(section_t section) {
+static void generate_sections_recursive(section_t section) {
+    /* BSP algorithm */
+
     section_t section1, section2;
     int split_horiz = rand() % 2;
 
     /* end if sections is small enough */
     if (section.w <= SECTION_MIN_W || section.h <= SECTION_MIN_H) {
-        create_section(section.x, section.y, section.w, section.h);
+        append_section(section);
         return;
     }
 
@@ -140,48 +147,41 @@ void create_sections(section_t section) {
         split_horiz = 1;
     }
 
-    float split_ratio = random_f(0.3, 0.7);
-
     if (split_horiz) {
         int split_point = random_i(7, section.h - 7);
-        section1 = new_section(section.x, section.y, section.w, split_point);
-        section2 = new_section(section.x, section.y + split_point, section.w,
-                               section.h - split_point);
+        section1 = make_section(section.x, section.y, section.w, split_point);
+        section2 = make_section(section.x, section.y + split_point, section.w,
+                                section.h - split_point);
     } else {
         int split_point = random_i(7, section.w - 7);
-        section1 = new_section(section.x, section.y, split_point, section.h);
-        section2 = new_section(section.x + split_point, section.y,
-                               section.w - split_point, section.h);
+        section1 = make_section(section.x, section.y, split_point, section.h);
+        section2 = make_section(section.x + split_point, section.y,
+                                section.w - split_point, section.h);
     }
 
-    create_sections(section1);
-    create_sections(section2);
+    generate_sections_recursive(section1);
+    generate_sections_recursive(section2);
 }
 
-room_t new_room(int x, int y, int w, int h) {
-    for (int i = 0; i < N_ROOMS; i++) {
-        if (rooms[i].active) {
-            continue;
-        }
+room_t append_room(int x, int y, int w, int h) {
+    rooms[room_ptr].x = x;
+    rooms[room_ptr].y = y;
+    rooms[room_ptr].w = w;
+    rooms[room_ptr].h = h;
+    rooms[room_ptr].active = true;
 
-        rooms[i].x = x;
-        rooms[i].y = y;
-        rooms[i].w = w;
-        rooms[i].h = h;
-        rooms[i].active = true;
-        return rooms[i];
+    room_ptr++;
+    if (room_ptr > N_ROOMS) {
+        fprintf(debug_file, "no space for room\n");
+        fprintf(debug_file, "aborting\n");
+        exit(1);
     }
 
-    fprintf(debug_file, "no space for more rooms, this should never happen\n");
-    exit(1);
+    return rooms[room_ptr - 1];
 }
 
-void create_rooms(void) {
-    for (int i = 0; i < N_SECTIONS; i++) {
-        if (!sections[i].active) {
-            break;
-        }
-
+static void create_rooms(void) {
+    for (int i = 0; i < section_ptr; i++) {
         int x1, y1, x2, y2;
 
         /* clang-format off */
@@ -193,58 +193,46 @@ void create_rooms(void) {
         } while (x2 - x1 < 4 || y2 - y1 < 4);
         /* clang-format on */
 
-        new_room(x1, y1, x2 - x1, y2 - y1);
-    }
-}
+        int w = x2 - x1;
+        int h = y2 - y1;
+        append_room(x1, y1, w, h);
 
-void fill_rooms(void) {
-    for (int i = 0; i < N_ROOMS; i++) {
-        if (!rooms[i].active) {
-            break;
+        /* draw room */
+        /* sides (right and left) */
+        for (int y = y1; y < y2; y++) {
+            set_mapch(y, x1 - 1, '|');
+            set_mapch(y, x2, '|');
         }
 
-        /* sides of room */
-        for (int y = rooms[i].y; y < rooms[i].y + rooms[i].h; y++) {
-            set_mapch(y, rooms[i].x - 1, '|');
-            set_mapch(y, rooms[i].x + rooms[i].w, '|');
-        }
         /* top and bottom */
-        for (int x = rooms[i].x - 1; x < rooms[i].x + rooms[i].w + 1; x++) {
-            set_mapch(rooms[i].y - 1, x, '-');
-            set_mapch(rooms[i].y + rooms[i].h, x, '-');
+        for (int x = x1 - 1; x < x2 + 1; x++) {
+            set_mapch(y1 - 1, x, '-');
+            set_mapch(y2, x, '-');
         }
 
-        for (int x = rooms[i].x; x < rooms[i].x + rooms[i].w; x++) {
-
-            for (int y = rooms[i].y; y < rooms[i].y + rooms[i].h; y++) {
+        /* fill with dungeon floor */
+        for (int y = y1; y < y2; y++) {
+            for (int x = x1; x < x2; x++) {
+                set_mapch(y, x, '.');
                 set_mapch(y, x, '.');
             }
         }
     }
 }
 
-void make_corridors(void) {
-    for (int i = 0; i < N_ROOMS; i++) {
-        if (!rooms[i].active) {
-            break;
-        }
-
+static void make_corridors(void) {
+    for (int i = 0; i < room_ptr; i++) {
         int cx1 = rooms[i].x + rooms[i].w / 2;
         int cy1 = rooms[i].y + rooms[i].h / 2;
 
-        int j = i + 1;
-        if (!rooms[j].active) {
-            j = i;
-        }
+        int j = i + (i + 1 == room_ptr ? 0 : 1);
 
         int cx2 = rooms[j].x + rooms[j].w / 2;
         int cy2 = rooms[j].y + rooms[j].h / 2;
 
         while (cx1 != cx2) {
             int c = '.';
-            int ch = get_mapch(cy1, cx1);
-
-            if (ch != '.') {
+            if (get_mapch(cy1, cx1) != '.') {
                 c = '#';
             }
 
@@ -254,9 +242,7 @@ void make_corridors(void) {
 
         while (cy1 != cy2) {
             int c = '.';
-            int ch = get_mapch(cy1, cx1);
-
-            if (ch != '.') {
+            if (get_mapch(cy1, cx1) != '.') {
                 c = '#';
             }
 
@@ -267,17 +253,9 @@ void make_corridors(void) {
 }
 
 void generate_map(void) {
-    section_t map = {
-        .x = 0,
-        .y = 0,
-        .w = MAP_WIDTH,
-        .h = MAP_HEIGHT,
-    };
-
-    create_sections(map);
+    section_t map = make_section(0, 0, MAP_WIDTH, MAP_HEIGHT);
+    init_maps();
+    generate_sections_recursive(map);
     create_rooms();
-    fill_rooms();
     make_corridors();
-    fprintf(debug_file, "%d %d %d %d\n", rooms[0].x, rooms[0].y, rooms[0].w,
-            rooms[0].h);
 }

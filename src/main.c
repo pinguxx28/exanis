@@ -21,7 +21,6 @@ int main() {
     start_color();
     init_color_pairs();
 
-    init_maps();
     generate_map();
 
     player_t *player = init_player();

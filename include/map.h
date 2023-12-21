@@ -13,10 +13,7 @@ void set_mapch(int y, int x, int ch);
 void set_seen_mapch(int y, int x, int ch);
 
 void print_map(void);
-void reveal_partial_map(int y, int x);
-
-/* map generation functions */
-void init_maps(void);
+void reveal_partial_map(int y, int x, float fov);
 void generate_map(void);
 
 #endif /* MAP_H */

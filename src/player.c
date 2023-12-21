@@ -50,6 +50,6 @@ void move_player(player_t *player, int c) {
         player->x = newx;
     }
 
-    reveal_partial_map(player->y, player->x);
+    reveal_partial_map(player->y, player->x, 10.0);
 }
 /* clang-format on */
