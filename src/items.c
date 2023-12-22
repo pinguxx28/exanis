@@ -50,10 +50,12 @@ void remove_item(item_t *item) { item->active = false; }
 
 void create_items(void) {
     for (int i = 0; i < room_ptr; i++) {
-        int x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
-        int y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
-
-        append_item(make_item(x, y, random_i(1, 20), '$'));
+        /* OBS: they can spawn on eachother */
+        for (int j = 0; j < random_i(0, 4); j++) {
+            int x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
+            int y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
+            append_item(make_item(x, y, random_i(1, 20), '$'));
+        }
     }
 }
 
