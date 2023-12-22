@@ -1,5 +1,6 @@
 #include "../include/colors.h"
 #include "../include/debug.h"
+#include "../include/items.h"
 #include "../include/map.h"
 #include "../include/player.h"
 #include <ncurses.h>
@@ -22,6 +23,7 @@ int main() {
     init_color_pairs();
 
     generate_map();
+    create_items();
 
     player_t *player = init_player();
 
@@ -33,6 +35,7 @@ int main() {
 
         /* drawing */
         print_map();
+        draw_items(player->x, player->y, 10);
         draw_player(player);
         refresh();
     } while ((c = getch()) != 'q');

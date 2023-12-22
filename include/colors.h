@@ -2,7 +2,9 @@
 #define COLORS_H
 
 enum {
-    PLAYER_COLOR_PAIR = 1,
+    DEFAULT_COLOR_PAIR = 1,
+    PLAYER_COLOR_PAIR,
+    MONEY_COLOR_PAIR,
 };
 
 void ensure_colors(void);

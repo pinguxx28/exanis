@@ -1,16 +1,13 @@
 #include "../include/map.h"
 
+#include "../include/colors.h"
 #include "../include/debug.h"
 #include "../include/helper.h"
 #include <ncurses.h>
-#include <stdbool.h>
 #include <stdlib.h>
 
 #define SECTION_MIN_W 15
 #define SECTION_MIN_H 15
-
-#define N_SECTIONS 1000
-#define N_ROOMS 500
 
 #define CHECK_BOUNDS(y, x, fname)                                              \
     do {                                                                       \
@@ -24,16 +21,6 @@
 
 int *map;
 int *seen_map;
-
-typedef struct {
-    int x, y, w, h;
-    bool active;
-} section_t;
-
-typedef struct {
-    int x, y, w, h;
-    bool active;
-} room_t;
 
 int section_ptr = 0;
 int room_ptr = 0;
@@ -61,6 +48,7 @@ void set_seen_mapch(int y, int x, int ch) {
 }
 
 void print_map(void) {
+    attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR));
     for (int i = 0; i < MAP_SIZE; i++) {
         int x = i % MAP_WIDTH;
         int y = i / MAP_WIDTH;

@@ -20,9 +20,8 @@ player_t *init_player(void) {
 }
 
 void draw_player(player_t *player) {
-    attron(COLOR_PAIR(PLAYER_COLOR_PAIR));
+    attrset(COLOR_PAIR(PLAYER_COLOR_PAIR) | A_BOLD);
     mvaddch(player->y, player->x, '@');
-    attroff(COLOR_PAIR(PLAYER_COLOR_PAIR));
 }
 
 void clear_player(player_t *player) {
