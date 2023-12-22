@@ -52,14 +52,19 @@ void print_map(void) {
 
         int tile = get_seen_mapch(y, x);
 
-        /* only draw not drawn tiles */
-        if (!(tile & NDRAWN)) {
-            continue;
-        }
+        if (tile & UNSEEN) {
+            /* don't draw unseen tiles */
+            if ((tile ^ UNSEEN) == ' ')
+                continue;
 
-        /* draw tile and unmark it not drawn */
-        mvaddch(y, x, tile ^ NDRAWN);
-        set_seen_mapch(y, x, tile ^ NDRAWN);
+            attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR));
+            mvaddch(y, x, tile ^ UNSEEN);
+            set_seen_mapch(y, x, tile ^ UNSEEN);
+        } else if (tile & SEEN) {
+            attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR) | A_BOLD);
+            mvaddch(y, x, tile ^ SEEN);
+            set_seen_mapch(y, x, tile ^ SEEN);
+        }
     }
 }
 
@@ -71,7 +76,9 @@ void reveal_partial_map(int ypos, int xpos, float fov) {
         float dist = distance(x, y, xpos, ypos);
 
         if (dist < fov) {
-            set_seen_mapch(y, x, get_mapch(y, x) | NDRAWN);
+            set_seen_mapch(y, x, get_mapch(y, x) | SEEN);
+        } else if (dist < fov + 1) {
+            set_seen_mapch(y, x, get_seen_mapch(y, x) | UNSEEN);
         }
     }
 }
@@ -82,6 +89,7 @@ static void init_maps(void) {
 
     for (int i = 0; i < MAP_SIZE; i++) {
         map[i] = ' ';
+        seen_map[i] = ' ';
     }
 }
 

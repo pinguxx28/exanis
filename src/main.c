@@ -33,7 +33,7 @@ int main() {
 
         /* drawing */
         print_map();
-        draw_items(player->x, player->y, 10);
+        draw_items(player->x, player->y, PLAYER_FOV);
         draw_player(player);
         refresh();
     } while ((c = getch()) != 'q');

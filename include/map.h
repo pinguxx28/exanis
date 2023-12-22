@@ -7,6 +7,8 @@
 #define MAP_WIDTH 80
 #define MAP_SIZE (MAP_HEIGHT * MAP_WIDTH)
 #define NDRAWN (1 << 14)
+#define SEEN (1 << 13)
+#define UNSEEN (1 << 12)
 #define N_SECTIONS 100
 #define N_ROOMS 100
 

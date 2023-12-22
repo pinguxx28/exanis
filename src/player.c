@@ -49,6 +49,6 @@ void move_player(player_t *player, int c) {
         player->x = newx;
     }
 
-    reveal_partial_map(player->y, player->x, 10.0);
+    reveal_partial_map(player->y, player->x, PLAYER_FOV);
 }
 /* clang-format on */

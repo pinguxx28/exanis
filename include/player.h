@@ -1,6 +1,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#define PLAYER_FOV 2.5
+
 typedef struct {
     int x, y;
 } player_t;
