@@ -9,7 +9,7 @@
 int main() {
     srand(time(0));
 
-    int c = 'k';
+    int c = 'h';
 
     initscr();
     noecho();
@@ -35,6 +35,7 @@ int main() {
         print_map();
         draw_items(player->x, player->y, PLAYER_FOV);
         draw_player(player);
+        draw_player_stats(*player);
         refresh();
     } while ((c = getch()) != 'q');
 

@@ -9,10 +9,11 @@
 #define N_ITEMS 1000
 item_t items[N_ITEMS];
 
-item_t make_item(int x, int y, char symbol) {
+item_t make_item(int x, int y, int amount, char symbol) {
     return (item_t){
         .x = x,
         .y = y,
+        .amount = amount,
         .symbol = symbol,
         .active = true,
     };
@@ -24,22 +25,35 @@ void append_item(item_t item) {
             continue;
         }
 
-        items[i].x = item.x;
-        items[i].y = item.y;
-        items[i].symbol = item.symbol;
-        items[i].active = true;
+        items[i] = item;
         return;
     }
 
     NC_ABORT("couldn't create item\n");
 }
 
+item_t *find_item(int y, int x) {
+    for (int i = 0; i < N_ITEMS; i++) {
+        if (!items[i].active) {
+            continue;
+        }
+
+        if (y == items[i].y && x == items[i].x) {
+            return &items[i];
+        }
+    }
+
+    NC_ABORT("couldn't find item\n");
+}
+
+void remove_item(item_t *item) { item->active = false; }
+
 void create_items(void) {
     for (int i = 0; i < room_ptr; i++) {
         int x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
         int y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
 
-        append_item(make_item(x, y, '$'));
+        append_item(make_item(x, y, random_i(1, 20), '$'));
     }
 }
 
