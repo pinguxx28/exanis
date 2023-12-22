@@ -1,5 +1,4 @@
 #include "../include/colors.h"
-#include "../include/debug.h"
 #include "../include/items.h"
 #include "../include/map.h"
 #include "../include/player.h"
@@ -9,7 +8,6 @@
 
 int main() {
     srand(time(0));
-    open_debug_file("debug.txt");
 
     int c = 'k';
 

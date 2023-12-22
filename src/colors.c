@@ -1,19 +1,19 @@
 #include "../include/colors.h"
 
-#include <ncurses.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "../include/debug.h"
 
 void ensure_colors(void) {
     if (has_colors() == FALSE) {
-        endwin();
-        printf("Your terminal doesn't suppport color\n");
-        exit(1);
+        NC_ABORT("terminal doesn't support colors\n");
     }
 }
 
 void init_color_pairs(void) {
-    init_color(COLOR_YELLOW, 1000, 1000, 0);
+    if (can_change_color() == TRUE) {
+        const int BRIGHT = 8;
+        init_color(COLOR_YELLOW + BRIGHT, 1000, 917, 0);
+        init_color(COLOR_CYAN + BRIGHT, 0, 808, 819);
+    }
 
     init_pair(DEFAULT_COLOR_PAIR, COLOR_WHITE, COLOR_BLACK);
     init_pair(PLAYER_COLOR_PAIR, COLOR_CYAN, COLOR_BLACK);

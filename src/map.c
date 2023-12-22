@@ -4,7 +4,6 @@
 #include "../include/debug.h"
 #include "../include/helper.h"
 #include <ncurses.h>
-#include <stdlib.h>
 
 #define SECTION_MIN_W 15
 #define SECTION_MIN_H 15
@@ -12,10 +11,8 @@
 #define CHECK_BOUNDS(y, x, fname)                                              \
     do {                                                                       \
         if ((y) < 0 || (y) >= MAP_HEIGHT || (x) < 0 || (x) >= MAP_WIDTH) {     \
-            fprintf(debug_file, "trying to access out of bounds\n");           \
-            fprintf(debug_file, "inside of %s\n", fname);                      \
-            fprintf(debug_file, "y: %d, x: %d,\n", (y), (x));                  \
-            exit(1);                                                           \
+            NC_ABORT("out of bounds\ny: %d, x: %d, inside of %s\n", (y), (x),  \
+                     (fname));                                                 \
         }                                                                      \
     } while (0)
 
@@ -107,8 +104,7 @@ static section_t append_section(section_t s) {
 
     section_ptr++;
     if (section_ptr == N_SECTIONS) {
-        fprintf(debug_file, "no space for section\n");
-        fprintf(debug_file, "aborting\n");
+        NC_ABORT("no space for sections\n");
     }
 
     return sections[section_ptr];
@@ -160,9 +156,7 @@ room_t append_room(int x, int y, int w, int h) {
 
     room_ptr++;
     if (room_ptr > N_ROOMS) {
-        fprintf(debug_file, "no space for room\n");
-        fprintf(debug_file, "aborting\n");
-        exit(1);
+        NC_ABORT("no space for room\n");
     }
 
     return rooms[room_ptr - 1];
