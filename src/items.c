@@ -46,7 +46,9 @@ item_t *find_item(int y, int x) {
     NC_ABORT("couldn't find item\n");
 }
 
-void remove_item(item_t *item) { item->active = false; }
+void remove_item(item_t *item) {
+    item->active = false;
+}
 
 void create_items(void) {
     for (int i = 0; i < room_ptr; i++) {
@@ -66,9 +68,7 @@ void draw_items(int px, int py, float fov) {
         }
 
         switch (items[i].symbol) {
-        case '$':
-            attrset(COLOR_PAIR(MONEY_COLOR_PAIR));
-            break;
+        case '$': attrset(COLOR_PAIR(MONEY_COLOR_PAIR)); break;
         }
 
         attron(A_BOLD);
