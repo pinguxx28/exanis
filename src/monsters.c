@@ -3,8 +3,10 @@
 #include "../include/colors.h"
 #include "../include/helper.h"
 #include "../include/map.h"
+#include "../include/msg_box.h"
+#include "../include/player.h"
 #include <ncurses.h>
-#include <stddef.h>
+#include <stdlib.h>
 
 monster_t monsters[N_MONSTERS];
 
@@ -21,7 +23,7 @@ monster_t *find_monster(int y, int x) {
 }
 
 monster_t make_monster(int y, int x, char symbol, int health, int damage,
-                       int speed) {
+                       float speed) {
     return (monster_t){
         .y = y,
         .x = x,
@@ -52,7 +54,56 @@ void init_monsters(void) {
         for (int j = 0; j < amount; j++) {
             int y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
             int x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
-            append_monster(make_monster(y, x, 'x', 5, 1, 1));
+            append_monster(make_monster(y, x, 'x', 5, 1, 2.0 / 3.0));
+        }
+    }
+}
+
+static void move_monster(monster_t *monster, int py, int px, int *health) {
+    int newy = monster->y;
+    int newx = monster->x;
+
+    if (distance(py, px, monster->y, monster->x) >= MONSTERS_FOV) {
+        bool move_horiz = rand() % 2;
+        if (move_horiz) newx += rand() % 2 ? 1 : -1;
+        else newy += rand() % 2 ? 1 : -1;
+    } else {
+        bool move_horiz = abs(newx - px) > abs(newy - py);
+        if (abs(newx - px) == abs(newy - py)) {
+            move_horiz = rand() % 2;
+        }
+
+        if (move_horiz) {
+            if (newx < px) newx++;
+            else if (newx > px) newx--;
+        } else {
+            if (newy < py) newy++;
+            else if (newy > py) newy--;
+        }
+    }
+
+    int ch = get_mapch(newy, newx);
+    if (newy == py && newx == px) {
+        *health -= monster->damage;
+        load_msg_box("Monster hit you! ");
+    } else if (ch == '.') {
+        monster->y = newy;
+        monster->x = newx;
+    }
+}
+
+void update_monsters(int py, int px, int *health) {
+    for (int i = 0; i < N_MONSTERS; i++) {
+        if (!monsters[i].active) continue;
+
+        if (monsters[i].health <= 0) {
+            monsters[i].active = false;
+            load_msg_box("Monster died. ");
+        }
+
+        if (rand() % 101 <= monsters[i].speed * 100) {
+            // if (true) {
+            move_monster(&monsters[i], py, px, health);
         }
     }
 }

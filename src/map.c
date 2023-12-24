@@ -47,7 +47,7 @@ void set_seen_mapch(int y, int x, int ch) {
 void print_map(void) {
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR));
     for (int i = 0; i < MAP_SIZE; i++) {
-        int y = i / MAP_WIDTH;
+        int y = i / MAP_WIDTH + 1;
         int x = i % MAP_WIDTH;
 
         int tile = get_seen_mapch(y, x);
@@ -79,7 +79,7 @@ void reveal_partial_map(int py, int px, float fov) {
 
         if (dist < fov) {
             set_seen_mapch(y, x, get_mapch(y, x) | SEEN);
-        } else if (dist < fov + 1) {
+        } else if (dist < fov + 2) {
             set_seen_mapch(y, x, get_seen_mapch(y, x) | UNSEEN);
         }
     }

@@ -9,6 +9,8 @@
 #include "../include/helper.h"
 #include "../include/items.h"
 #include "../include/map.h"
+#include "../include/monsters.h"
+#include "../include/msg_box.h"
 
 player_t *init_player(void) {
     player_t *player = malloc(sizeof(player_t));
@@ -58,7 +60,12 @@ void move_player(player_t *player, int c) {
 
     /* only handle movement if we moved */
     int ch = get_mapch(newy, newx);
-    if (ch == '.' || ch == '=' || ch == '#') {
+    monster_t *monster = find_monster(newy, newx);
+
+    if (monster != NULL) {
+        monster->health -= player->damage;
+        load_msg_box("You hit monster! ");
+    } else if (ch == '.' || ch == '=' || ch == '#') {
         player->y = newy;
         player->x = newx;
     }
@@ -70,6 +77,7 @@ void move_player(player_t *player, int c) {
 
         if (item->symbol == '$') {
             player->money += item->amount;
+            load_msg_box("You picked up some coins. ");
         }
 
         remove_item(item);
