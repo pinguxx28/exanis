@@ -4,7 +4,7 @@
 #define PLAYER_FOV 2.5
 
 typedef struct {
-    int x, y;
+    int y, x;
     int money;
     int health;
     int damage;

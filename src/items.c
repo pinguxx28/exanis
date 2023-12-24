@@ -9,10 +9,10 @@
 #define N_ITEMS 1000
 item_t items[N_ITEMS];
 
-item_t make_item(int x, int y, int amount, char symbol) {
+item_t make_item(int y, int x, int amount, char symbol) {
     return (item_t){
-        .x = x,
         .y = y,
+        .x = x,
         .amount = amount,
         .symbol = symbol,
         .active = true,
@@ -50,14 +50,14 @@ void create_items(void) {
     for (int i = 0; i < room_ptr; i++) {
         /* OBS: they can spawn on eachother */
         for (int j = 0; j < random_i(0, 4); j++) {
-            int x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
             int y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
-            append_item(make_item(x, y, random_i(1, 20), '$'));
+            int x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
+            append_item(make_item(y, x, random_i(1, 20), '$'));
         }
     }
 }
 
-void draw_items(int px, int py, float fov) {
+void draw_items(int py, int px, float fov) {
     for (int i = 0; i < N_ITEMS; i++) {
         if (!items[i].active) continue;
 
@@ -67,7 +67,7 @@ void draw_items(int px, int py, float fov) {
 
         attron(A_BOLD);
 
-        if (distance(px, py, items[i].x, items[i].y) <= fov) {
+        if (distance(py, px, items[i].y, items[i].x) <= fov) {
             mvaddch(items[i].y, items[i].x, items[i].symbol);
         }
     }

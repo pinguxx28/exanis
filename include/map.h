@@ -13,12 +13,14 @@
 #define N_ROOMS 100
 
 typedef struct {
-    int x, y, w, h;
+    int y, x;
+    int h, w;
     bool active;
 } section_t;
 
 typedef struct {
-    int x, y, w, h;
+    int y, x;
+    int h, w;
     bool active;
 } room_t;
 

@@ -20,8 +20,8 @@ player_t *init_player(void) {
     player->speed = 1;
 
     do {
-        player->x = random_i(0, MAP_WIDTH);
         player->y = random_i(0, MAP_HEIGHT);
+        player->x = random_i(0, MAP_WIDTH);
     } while (get_mapch(player->y, player->x) != '.');
 
     return player;
@@ -38,16 +38,16 @@ void clear_player(player_t *player) {
 }
 
 void move_player(player_t *player, int c) {
-    int newx = player->x;
     int newy = player->y;
+    int newx = player->x;
     bool pickup = false;
 
     /* clang-format off */
     switch (c) {
-        case 'h': newx--; break;
-        case 'l': newx++; break;
         case 'k': newy--; break;
         case 'j': newy++; break;
+        case 'h': newx--; break;
+        case 'l': newx++; break;
         case 'y': newy--; newx--; break;
         case 'u': newy--; newx++; break;
         case 'b': newy++; newx--; break;

@@ -47,8 +47,8 @@ void set_seen_mapch(int y, int x, int ch) {
 void print_map(void) {
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR));
     for (int i = 0; i < MAP_SIZE; i++) {
-        int x = i % MAP_WIDTH;
         int y = i / MAP_WIDTH;
+        int x = i % MAP_WIDTH;
 
         int tile = get_seen_mapch(y, x);
 
@@ -70,12 +70,12 @@ void print_map(void) {
     }
 }
 
-void reveal_partial_map(int ypos, int xpos, float fov) {
+void reveal_partial_map(int py, int px, float fov) {
     for (int i = 0; i < MAP_SIZE; i++) {
-        int x = i % MAP_WIDTH;
         int y = i / MAP_WIDTH;
+        int x = i % MAP_WIDTH;
 
-        float dist = distance(x, y, xpos, ypos);
+        float dist = distance(y, x, py, px);
 
         if (dist < fov) {
             set_seen_mapch(y, x, get_mapch(y, x) | SEEN);
@@ -95,21 +95,21 @@ static void init_maps(void) {
     }
 }
 
-static section_t make_section(int x, int y, int w, int h) {
+static section_t make_section(int y, int x, int h, int w) {
     return (section_t){
-        .x = x,
         .y = y,
-        .w = w,
+        .x = x,
         .h = h,
+        .w = w,
         .active = false,
     };
 }
 
 static section_t append_section(section_t s) {
-    sections[section_ptr].x = s.x;
     sections[section_ptr].y = s.y;
-    sections[section_ptr].w = s.w;
+    sections[section_ptr].x = s.x;
     sections[section_ptr].h = s.h;
+    sections[section_ptr].w = s.w;
     sections[section_ptr].active = true;
 
     section_ptr++;
@@ -127,7 +127,7 @@ static void generate_sections_recursive(section_t section) {
     int split_horiz = rand() % 2;
 
     /* end if sections is small enough */
-    if (section.w <= SECTION_MIN_W || section.h <= SECTION_MIN_H) {
+    if (section.h <= SECTION_MIN_H || section.w <= SECTION_MIN_W) {
         append_section(section);
         return;
     }
@@ -143,25 +143,25 @@ static void generate_sections_recursive(section_t section) {
 
     if (split_horiz) {
         int split_point = random_i(7, section.h - 7);
-        section1 = make_section(section.x, section.y, section.w, split_point);
-        section2 = make_section(section.x, section.y + split_point, section.w,
-                                section.h - split_point);
+        section1 = make_section(section.y, section.x, split_point, section.w);
+        section2 = make_section(section.y + split_point, section.x,
+                                section.h - split_point, section.w);
     } else {
         int split_point = random_i(7, section.w - 7);
-        section1 = make_section(section.x, section.y, split_point, section.h);
-        section2 = make_section(section.x + split_point, section.y,
-                                section.w - split_point, section.h);
+        section1 = make_section(section.y, section.x, section.h, split_point);
+        section2 = make_section(section.y, section.x + split_point, section.h,
+                                section.w - split_point);
     }
 
     generate_sections_recursive(section1);
     generate_sections_recursive(section2);
 }
 
-room_t append_room(int x, int y, int w, int h) {
-    rooms[room_ptr].x = x;
+room_t append_room(int y, int x, int h, int w) {
     rooms[room_ptr].y = y;
-    rooms[room_ptr].w = w;
+    rooms[room_ptr].x = x;
     rooms[room_ptr].h = h;
+    rooms[room_ptr].w = w;
     rooms[room_ptr].active = true;
 
     room_ptr++;
@@ -174,20 +174,20 @@ room_t append_room(int x, int y, int w, int h) {
 
 static void create_rooms(void) {
     for (int i = 0; i < section_ptr; i++) {
-        int x1, y1, x2, y2;
+        int y1, x1, y2, x2;
 
         /* clang-format off */
         do {
-            x1 = random_i(sections[i].x + 1, sections[i].x + sections[i].w / 2 - 2);
             y1 = random_i(sections[i].y + 1, sections[i].y + sections[i].h / 2 - 2);
-            x2 = random_i(sections[i].x + sections[i].w / 2 + 2, sections[i].x + sections[i].w - 1);
+            x1 = random_i(sections[i].x + 1, sections[i].x + sections[i].w / 2 - 2);
             y2 = random_i(sections[i].y + sections[i].h / 2 + 2, sections[i].y + sections[i].h - 1);
-        } while (x2 - x1 < 4 || y2 - y1 < 4);
+            x2 = random_i(sections[i].x + sections[i].w / 2 + 2, sections[i].x + sections[i].w - 1);
+        } while (y2 - y1 < 4 || x2 - x1 < 4);
         /* clang-format on */
 
-        int w = x2 - x1;
         int h = y2 - y1;
-        append_room(x1, y1, w, h);
+        int w = x2 - x1;
+        append_room(y1, x1, h, w);
 
         /* draw room */
         /* sides (right and left) */
@@ -214,23 +214,13 @@ static void create_rooms(void) {
 
 static void make_corridors(void) {
     for (int i = 0; i < room_ptr; i++) {
-        int cx1 = rooms[i].x + rooms[i].w / 2;
         int cy1 = rooms[i].y + rooms[i].h / 2;
+        int cx1 = rooms[i].x + rooms[i].w / 2;
 
         int j = i + (i + 1 == room_ptr ? 0 : 1);
 
-        int cx2 = rooms[j].x + rooms[j].w / 2;
         int cy2 = rooms[j].y + rooms[j].h / 2;
-
-        while (cx1 != cx2) {
-            int c = '.';
-            if (get_mapch(cy1, cx1) != '.') {
-                c = '#';
-            }
-
-            set_mapch(cy1, cx1, c);
-            cx1 += (cx1 < cx2) ? 1 : -1;
-        }
+        int cx2 = rooms[j].x + rooms[j].w / 2;
 
         while (cy1 != cy2) {
             int c = '.';
@@ -241,11 +231,21 @@ static void make_corridors(void) {
             set_mapch(cy1, cx1, c);
             cy1 += (cy1 < cy2) ? 1 : -1;
         }
+
+        while (cx1 != cx2) {
+            int c = '.';
+            if (get_mapch(cy1, cx1) != '.') {
+                c = '#';
+            }
+
+            set_mapch(cy1, cx1, c);
+            cx1 += (cx1 < cx2) ? 1 : -1;
+        }
     }
 }
 
 void generate_map(void) {
-    section_t map = make_section(0, 0, MAP_WIDTH, MAP_HEIGHT);
+    section_t map = make_section(0, 0, MAP_HEIGHT, MAP_WIDTH);
     init_maps();
     generate_sections_recursive(map);
     create_rooms();

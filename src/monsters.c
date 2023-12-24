@@ -12,7 +12,7 @@ monster_t *find_monster(int y, int x) {
     for (int i = 0; i < N_MONSTERS; i++) {
         if (!monsters[i].active) continue;
 
-        if (x == monsters[i].x && y == monsters[i].y) {
+        if (y == monsters[i].y && x == monsters[i].x) {
             return &monsters[i];
         }
     }
@@ -47,7 +47,7 @@ void append_monster(monster_t monster) {
 
 void init_monsters(void) {
     for (int i = 0; i < room_ptr; i++) {
-        int amount = random_i(1, 1 + rooms[i].w * rooms[i].h / 50);
+        int amount = random_i(1, 1 + rooms[i].h * rooms[i].w / 50);
 
         for (int j = 0; j < amount; j++) {
             int y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
@@ -62,7 +62,7 @@ void draw_monsters(int py, int px, float fov) {
     for (int i = 0; i < N_MONSTERS; i++) {
         if (!monsters[i].active) continue;
 
-        if (distance(px, py, monsters[i].x, monsters[i].y) < fov) {
+        if (distance(py, px, monsters[i].y, monsters[i].x) < fov) {
             mvaddch(monsters[i].y, monsters[i].x, monsters[i].symbol);
         }
     }

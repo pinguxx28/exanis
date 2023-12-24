@@ -35,7 +35,7 @@ int main() {
 
         /* drawing */
         print_map();
-        draw_items(player->x, player->y, PLAYER_FOV);
+        draw_items(player->y, player->x, PLAYER_FOV);
         draw_monsters(player->y, player->x, PLAYER_FOV);
         draw_player(player);
         draw_player_stats(*player);
