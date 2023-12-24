@@ -68,7 +68,7 @@ void draw_items(int px, int py, float fov) {
         }
 
         switch (items[i].symbol) {
-        case '$': attrset(COLOR_PAIR(MONEY_COLOR_PAIR)); break;
+            case '$': attrset(COLOR_PAIR(MONEY_COLOR_PAIR)); break;
         }
 
         attron(A_BOLD);
