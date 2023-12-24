@@ -5,7 +5,7 @@
 
 #define MONSTERS_FOV 4.5
 
-#define N_MONSTERS 1000
+#define MAX_MONSTERS 100
 typedef struct {
     int y, x;
     char symbol;

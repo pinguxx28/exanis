@@ -6,8 +6,8 @@
 #include "../include/map.h"
 #include <ncurses.h>
 
-#define N_ITEMS 1000
-item_t items[N_ITEMS];
+#define MAX_ITEMS 100
+item_t items[MAX_ITEMS];
 
 item_t make_item(int y, int x, int amount, char symbol) {
     return (item_t){
@@ -20,7 +20,7 @@ item_t make_item(int y, int x, int amount, char symbol) {
 }
 
 void append_item(item_t item) {
-    for (int i = 0; i < N_ITEMS; i++) {
+    for (int i = 0; i < MAX_ITEMS; i++) {
         if (items[i].active) continue;
 
         items[i] = item;
@@ -31,7 +31,7 @@ void append_item(item_t item) {
 }
 
 item_t *find_item(int y, int x) {
-    for (int i = 0; i < N_ITEMS; i++) {
+    for (int i = 0; i < MAX_ITEMS; i++) {
         if (!items[i].active) continue;
 
         if (y == items[i].y && x == items[i].x) {
@@ -39,7 +39,7 @@ item_t *find_item(int y, int x) {
         }
     }
 
-    NC_ABORT("couldn't find item\n");
+    return NULL;
 }
 
 void remove_item(item_t *item) {
@@ -48,17 +48,21 @@ void remove_item(item_t *item) {
 
 void create_items(void) {
     for (int i = 0; i < room_ptr; i++) {
-        /* OBS: they can spawn on eachother */
         for (int j = 0; j < random_i(0, 4); j++) {
-            int y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
-            int x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
+            int y, x;
+
+            do {
+                y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
+                x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
+            } while (find_item(y, x) != NULL);
+
             append_item(make_item(y, x, random_i(1, 20), '$'));
         }
     }
 }
 
 void draw_items(int py, int px, float fov) {
-    for (int i = 0; i < N_ITEMS; i++) {
+    for (int i = 0; i < MAX_ITEMS; i++) {
         if (!items[i].active) continue;
 
         switch (items[i].symbol) {

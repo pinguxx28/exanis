@@ -9,8 +9,8 @@
 #define NDRAWN (1 << 14)
 #define SEEN (1 << 13)
 #define UNSEEN (1 << 12)
-#define N_SECTIONS 100
-#define N_ROOMS 100
+#define MAX_SECTIONS 100
+#define MAX_ROOMS 100
 
 typedef struct {
     int y, x;
@@ -26,8 +26,8 @@ typedef struct {
 
 extern int section_ptr;
 extern int room_ptr;
-extern section_t sections[N_SECTIONS];
-extern room_t rooms[N_ROOMS];
+extern section_t sections[MAX_SECTIONS];
+extern room_t rooms[MAX_ROOMS];
 /* map index functions */
 int get_mapch(int y, int x);
 int get_seen_mapch(int y, int x);

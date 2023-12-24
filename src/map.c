@@ -21,8 +21,8 @@ int *seen_map;
 
 int section_ptr = 0;
 int room_ptr = 0;
-section_t sections[N_SECTIONS];
-room_t rooms[N_ROOMS];
+section_t sections[MAX_SECTIONS];
+room_t rooms[MAX_ROOMS];
 
 int get_mapch(int y, int x) {
     CHECK_BOUNDS(y, x, "get_mapch");
@@ -113,7 +113,7 @@ static section_t append_section(section_t s) {
     sections[section_ptr].active = true;
 
     section_ptr++;
-    if (section_ptr == N_SECTIONS) {
+    if (section_ptr == MAX_SECTIONS) {
         NC_ABORT("no space for sections\n");
     }
 
@@ -165,7 +165,7 @@ room_t append_room(int y, int x, int h, int w) {
     rooms[room_ptr].active = true;
 
     room_ptr++;
-    if (room_ptr > N_ROOMS) {
+    if (room_ptr > MAX_ROOMS) {
         NC_ABORT("no space for room\n");
     }
 

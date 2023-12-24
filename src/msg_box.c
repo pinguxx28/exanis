@@ -10,11 +10,12 @@ char *msg_box = NULL;
 
 void load_msg_box(char *msg, ...) {
     va_list arg;
-
     va_start(arg, msg);
+
     char buf[81];
     vsprintf(buf, msg, arg);
     strcat(msg_box, buf);
+
     va_end(arg);
 }
 

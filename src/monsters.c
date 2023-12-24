@@ -7,10 +7,10 @@
 #include <ncurses.h>
 #include <stdlib.h>
 
-monster_t monsters[N_MONSTERS];
+monster_t monsters[MAX_MONSTERS];
 
 monster_t *find_monster(int y, int x) {
-    for (int i = 0; i < N_MONSTERS; i++) {
+    for (int i = 0; i < MAX_MONSTERS; i++) {
         if (!monsters[i].active) continue;
 
         if (y == monsters[i].y && x == monsters[i].x) {
@@ -30,17 +30,18 @@ monster_t make_monster(int y, int x, char symbol, int health, int damage,
         .health = health,
         .damage = damage,
         .speed = speed,
-        .active = true /* isin't required */
+        .active = true /* isn't really required */
     };
 }
 
 void append_monster(monster_t monster) {
-    for (int i = 0; i < N_MONSTERS; i++) {
+    for (int i = 0; i < MAX_MONSTERS; i++) {
         if (monsters[i].active) continue;
 
         monsters[i] = monster;
 
-        /* just make sure that we set it to active, doesn't harm anyone */
+        /* just make sure that we set it to active */
+        /* doesn't harm anyone */
         monsters[i].active = true;
         break;
     }
@@ -62,11 +63,18 @@ static void move_monster(monster_t *monster, int py, int px, int *health) {
     int newy = monster->y;
     int newx = monster->x;
 
+    /* monsters walk randomly if they can't see the player */
+    /* otherwise the monsters walk towards the player */
     if (distance(py, px, monster->y, monster->x) >= MONSTERS_FOV) {
-        bool move_horiz = rand() % 2;
-        if (move_horiz) newx += rand() % 2 ? 1 : -1;
-        else newy += rand() % 2 ? 1 : -1;
+        if (rand() % 2) {
+            newx += rand() % 2 ? 1 : -1;
+        } else {
+            newy += rand() % 2 ? 1 : -1;
+        }
     } else {
+        /* walk in the furthest away direcetion */
+        /* if both directions are the same, walk randomly */
+        /* but always move towards the player */
         bool move_horiz = abs(newx - px) > abs(newy - py);
         if (abs(newx - px) == abs(newy - py)) {
             move_horiz = rand() % 2;
@@ -81,20 +89,21 @@ static void move_monster(monster_t *monster, int py, int px, int *health) {
         }
     }
 
-    int ch = get_mapch(newy, newx);
     if (newy == py && newx == px) {
         int old_health = *health;
         *health -= monster->damage;
-        if (*health <= 0) *health = 0;
+        *health = max(*health, 0);
+
         load_msg_box("Monster hit you HP: %d->%d! ", old_health, *health);
-    } else if (ch == '.' && rand() % 101 <= monsters->speed * 100) {
+    } else if (get_mapch(newy, newx) == '.' &&
+               rand() % 101 <= monsters->speed * 100) {
         monster->y = newy;
         monster->x = newx;
     }
 }
 
 void update_monsters(int py, int px, int *health) {
-    for (int i = 0; i < N_MONSTERS; i++) {
+    for (int i = 0; i < MAX_MONSTERS; i++) {
         if (!monsters[i].active) continue;
 
         if (monsters[i].health <= 0) {
@@ -109,7 +118,7 @@ void update_monsters(int py, int px, int *health) {
 
 void draw_monsters(int py, int px, float fov) {
     attrset(COLOR_PAIR(MONSTERS_COLOR_PAIR) | A_BOLD);
-    for (int i = 0; i < N_MONSTERS; i++) {
+    for (int i = 0; i < MAX_MONSTERS; i++) {
         if (!monsters[i].active) continue;
 
         if (distance(py, px, monsters[i].y, monsters[i].x) < fov) {
