@@ -52,10 +52,12 @@ void print_map(void) {
 
         int tile = get_seen_mapch(y, x);
 
+        /* tiles we have seen get drawn slightly foggy */
+        /* while tiles we are currently in the range of */
+        /* we see clearly */
         if (tile & UNSEEN) {
             /* don't draw unseen tiles */
-            if ((tile ^ UNSEEN) == ' ')
-                continue;
+            if ((tile ^ UNSEEN) == ' ') continue;
 
             attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR));
             mvaddch(y, x, tile ^ UNSEEN);

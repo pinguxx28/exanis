@@ -21,9 +21,7 @@ item_t make_item(int x, int y, int amount, char symbol) {
 
 void append_item(item_t item) {
     for (int i = 0; i < N_ITEMS; i++) {
-        if (items[i].active) {
-            continue;
-        }
+        if (items[i].active) continue;
 
         items[i] = item;
         return;
@@ -34,9 +32,7 @@ void append_item(item_t item) {
 
 item_t *find_item(int y, int x) {
     for (int i = 0; i < N_ITEMS; i++) {
-        if (!items[i].active) {
-            continue;
-        }
+        if (!items[i].active) continue;
 
         if (y == items[i].y && x == items[i].x) {
             return &items[i];
@@ -63,9 +59,7 @@ void create_items(void) {
 
 void draw_items(int px, int py, float fov) {
     for (int i = 0; i < N_ITEMS; i++) {
-        if (!items[i].active) {
-            continue;
-        }
+        if (!items[i].active) continue;
 
         switch (items[i].symbol) {
             case '$': attrset(COLOR_PAIR(MONEY_COLOR_PAIR)); break;
