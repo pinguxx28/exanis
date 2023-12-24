@@ -47,7 +47,7 @@ void set_seen_mapch(int y, int x, int ch) {
 void print_map(void) {
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR));
     for (int i = 0; i < MAP_SIZE; i++) {
-        int y = i / MAP_WIDTH + 1;
+        int y = i / MAP_WIDTH;
         int x = i % MAP_WIDTH;
 
         int tile = get_seen_mapch(y, x);

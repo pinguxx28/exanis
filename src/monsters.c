@@ -4,7 +4,6 @@
 #include "../include/helper.h"
 #include "../include/map.h"
 #include "../include/msg_box.h"
-#include "../include/player.h"
 #include <ncurses.h>
 #include <stdlib.h>
 
@@ -84,9 +83,11 @@ static void move_monster(monster_t *monster, int py, int px, int *health) {
 
     int ch = get_mapch(newy, newx);
     if (newy == py && newx == px) {
+        int old_health = *health;
         *health -= monster->damage;
-        load_msg_box("Monster hit you! ");
-    } else if (ch == '.') {
+        if (*health <= 0) *health = 0;
+        load_msg_box("Monster hit you HP: %d->%d! ", old_health, *health);
+    } else if (ch == '.' && rand() % 101 <= monsters->speed * 100) {
         monster->y = newy;
         monster->x = newx;
     }
@@ -99,12 +100,10 @@ void update_monsters(int py, int px, int *health) {
         if (monsters[i].health <= 0) {
             monsters[i].active = false;
             load_msg_box("Monster died. ");
+            continue;
         }
 
-        if (rand() % 101 <= monsters[i].speed * 100) {
-            // if (true) {
-            move_monster(&monsters[i], py, px, health);
-        }
+        move_monster(&monsters[i], py, px, health);
     }
 }
 

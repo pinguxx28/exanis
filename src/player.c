@@ -63,8 +63,11 @@ void move_player(player_t *player, int c) {
     monster_t *monster = find_monster(newy, newx);
 
     if (monster != NULL) {
+        int old_health = monster->health;
         monster->health -= player->damage;
-        load_msg_box("You hit monster! ");
+        if (monster->health <= 0) monster->health = 0;
+        load_msg_box("You hit monster HP: %d->%d! ", old_health,
+                     monster->health);
     } else if (ch == '.' || ch == '=' || ch == '#') {
         player->y = newy;
         player->x = newx;
@@ -77,7 +80,7 @@ void move_player(player_t *player, int c) {
 
         if (item->symbol == '$') {
             player->money += item->amount;
-            load_msg_box("You picked up some coins. ");
+            load_msg_box("Cha-ching +$%d", item->amount);
         }
 
         remove_item(item);
@@ -86,9 +89,10 @@ void move_player(player_t *player, int c) {
 
 void draw_player_stats(player_t player) {
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR) | A_BOLD);
-    move(MAP_HEIGHT + 1, 1);
-    /* increases readability instead of putting all on one line */
-    printw("$: %d, ", player.money);
-    printw("HP: %d, ", player.health);
-    printw("DMG: %d", player.damage);
+    move(MAP_HEIGHT + 1, 0);
+
+    char stat_line[81];
+    snprintf(stat_line, 80, "$: %d, HP: %d, DMG: %d", player.money,
+             player.health, player.damage);
+    printw("%-80s", stat_line);
 }
