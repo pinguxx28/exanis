@@ -15,6 +15,10 @@ player_t *init_player(void) {
 
     *player = (player_t){0};
 
+    player->health = 10;
+    player->damage = 2;
+    player->speed = 1;
+
     do {
         player->x = random_i(0, MAP_WIDTH);
         player->y = random_i(0, MAP_HEIGHT);
@@ -33,22 +37,24 @@ void clear_player(player_t *player) {
     mvaddch(player->y, player->x, c);
 }
 
-/* clang-format off */
 void move_player(player_t *player, int c) {
     int newx = player->x;
     int newy = player->y;
     bool pickup = false;
 
-    if (c == 'h') newx--;
-    else if (c == 'l') newx++;
-    else if (c == 'k') newy--;
-    else if (c == 'j') newy++;
-    else if (c == 'y') { newy--; newx--; }
-    else if (c == 'u') { newy--; newx++; }
-    else if (c == 'b') { newy++; newx--; }
-    else if (c == 'n') { newy++; newx++; }
-
-    else if (c == ',') pickup = true;
+    /* clang-format off */
+    switch (c) {
+        case 'h': newx--; break;
+        case 'l': newx++; break;
+        case 'k': newy--; break;
+        case 'j': newy++; break;
+        case 'y': newy--; newx--; break;
+        case 'u': newy--; newx++; break;
+        case 'b': newy++; newx--; break;
+        case 'n': newy++; newx++; break;
+        case ',': pickup = true; break;
+    }
+    /* clang-format on */
 
     /* only handle movement if we moved */
     int ch = get_mapch(newy, newx);
@@ -69,10 +75,12 @@ void move_player(player_t *player, int c) {
         remove_item(item);
     }
 }
-/* clang-format on */
 
 void draw_player_stats(player_t player) {
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR) | A_BOLD);
     move(MAP_HEIGHT + 1, 1);
-    printw("$: %3d", player.money);
+    /* increases readability instead of putting all on one line */
+    printw("$: %d, ", player.money);
+    printw("HP: %d, ", player.health);
+    printw("DMG: %d", player.damage);
 }

@@ -6,6 +6,9 @@
 typedef struct {
     int x, y;
     int money;
+    int health;
+    int damage;
+    int speed;
 } player_t;
 
 player_t *init_player(void);
