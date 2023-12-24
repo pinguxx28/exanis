@@ -59,7 +59,7 @@ void init_monsters(void) {
     }
 }
 
-static void move_monster(monster_t *monster, int py, int px, int *health) {
+static void move_monster(monster_t *monster, int py, int px) {
     int newy = monster->y;
     int newx = monster->x;
 
@@ -89,17 +89,21 @@ static void move_monster(monster_t *monster, int py, int px, int *health) {
         }
     }
 
-    if (newy == py && newx == px) {
-        int old_health = *health;
-        *health -= monster->damage;
-        *health = max(*health, 0);
-
-        load_msg_box("Monster hit you HP: %d->%d! ", old_health, *health);
-    } else if (get_mapch(newy, newx) == '.' &&
-               rand() % 101 <= monsters->speed * 100) {
+    if (get_mapch(newy, newx) == '.' && rand() % 101 <= monsters->speed * 100 &&
+        distance(py, px, newy, newx) >= 1) {
         monster->y = newy;
         monster->x = newx;
     }
+}
+
+static void punch_monster(monster_t *monster, int py, int px, int *health) {
+    if (distance(py, px, monster->y, monster->x) > 1) return;
+
+    int old_health = *health;
+    *health -= monster->damage;
+    *health = max(*health, 0);
+
+    load_msg_box("Monster hit you HP: %d->%d! ", old_health, *health);
 }
 
 void update_monsters(int py, int px, int *health) {
@@ -112,7 +116,8 @@ void update_monsters(int py, int px, int *health) {
             continue;
         }
 
-        move_monster(&monsters[i], py, px, health);
+        move_monster(&monsters[i], py, px);
+        punch_monster(&monsters[i], py, px, health);
     }
 }
 
