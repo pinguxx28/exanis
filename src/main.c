@@ -1,6 +1,7 @@
 #include "../include/colors.h"
 #include "../include/items.h"
 #include "../include/map.h"
+#include "../include/monsters.h"
 #include "../include/player.h"
 #include <ncurses.h>
 #include <stdlib.h>
@@ -22,6 +23,7 @@ int main() {
 
     generate_map();
     create_items();
+    init_monsters();
 
     player_t *player = init_player();
 
@@ -34,6 +36,7 @@ int main() {
         /* drawing */
         print_map();
         draw_items(player->x, player->y, PLAYER_FOV);
+        draw_monsters(player->y, player->x, PLAYER_FOV);
         draw_player(player);
         draw_player_stats(*player);
         refresh();
