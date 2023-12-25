@@ -43,6 +43,7 @@ void move_player(player_t *player, int c) {
     int newy = player->y;
     int newx = player->x;
     bool pickup = false;
+    bool decend = false;
 
     /* clang-format off */
     switch (c) {
@@ -55,6 +56,7 @@ void move_player(player_t *player, int c) {
         case 'b': newy++; newx--; break;
         case 'n': newy++; newx++; break;
         case ',': pickup = true; break;
+        case '>': decend = true; break;
     }
     /* clang-format on */
 
@@ -68,7 +70,7 @@ void move_player(player_t *player, int c) {
         if (monster->health <= 0) monster->health = 0;
         load_msg_box("You hit %s HP: %d->%d! ", monster->name, old_health,
                      monster->health);
-    } else if (ch == '.' || ch == '=' || ch == '#') {
+    } else if (ch != '-' && ch != '|') {
         player->y = newy;
         player->x = newx;
     }
@@ -78,12 +80,28 @@ void move_player(player_t *player, int c) {
     if (pickup) {
         item_t *item = find_item(player->y, player->x);
 
+        if (item == NULL) {
+            load_msg_box("Nothing on the ground\n ");
+            return;
+        }
+
         if (item->symbol == '$') {
             player->money += item->amount;
             load_msg_box("Cha-ching +$%d", item->amount);
         }
 
         remove_item(item);
+    }
+
+    if (decend) {
+        if (get_mapch(player->y, player->x) != '>') {
+            load_msg_box("Can't decend here. ");
+        }
+
+        /* TODO: make this better */
+        endwin();
+        printf("You decended with $%d\n", player->money);
+        exit(0);
     }
 }
 

@@ -244,10 +244,20 @@ static void make_corridors(void) {
     }
 }
 
+static void make_staircase(void) {
+    int n = random_i(0, room_ptr);
+
+    int y = random_i(rooms[n].y, rooms[n].y + rooms[n].h);
+    int x = random_i(rooms[n].x, rooms[n].x + rooms[n].w);
+
+    set_mapch(y, x, '>');
+}
+
 void generate_map(void) {
     section_t map = make_section(0, 0, MAP_HEIGHT, MAP_WIDTH);
     init_maps();
     generate_sections_recursive(map);
     create_rooms();
     make_corridors();
+    make_staircase();
 }
