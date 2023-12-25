@@ -23,15 +23,11 @@ monster_t *find_monster(int y, int x) {
     return NULL;
 }
 
-monster_t make_monster(int y, int x, char symbol, int health, int damage,
-                       float speed) {
+monster_t make_monster(int y, int x, char symbol) {
     monster_t monster = {
         .y = y,
         .x = x,
         .symbol = symbol,
-        .health = health,
-        .damage = damage,
-        .speed = speed,
         .active = true /* isn't really required */
     };
 
@@ -39,6 +35,16 @@ monster_t make_monster(int y, int x, char symbol, int health, int damage,
         case 'x':
             monster.name = malloc(strlen("Bug") + 1);
             strcpy(monster.name, "Bug");
+            monster.health = 2;
+            monster.damage = 1;
+            monster.speed = 2.0 / 3.0;
+            break;
+        case 'o':
+            monster.name = malloc(strlen("Orc") + 1);
+            strcpy(monster.name, "Orc");
+            monster.health = 6;
+            monster.damage = 3;
+            monster.speed = 1.0 / 2.0;
             break;
         default: NC_ABORT("unrecognized monster symbol, %c", symbol); break;
     }
@@ -66,7 +72,13 @@ void init_monsters(void) {
         for (int j = 0; j < amount; j++) {
             int y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
             int x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
-            append_monster(make_monster(y, x, 'x', 5, 1, 2.0 / 3.0));
+            append_monster(make_monster(y, x, 'x'));
+        }
+
+        if (random_i(0, 4) == 0) {
+            int y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
+            int x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
+            append_monster(make_monster(y, x, 'o'));
         }
     }
 }
@@ -134,9 +146,13 @@ void update_monsters(int py, int px, int *health) {
 }
 
 void draw_monsters(int py, int px, float fov) {
-    attrset(COLOR_PAIR(MONSTERS_COLOR_PAIR) | A_BOLD);
     for (int i = 0; i < MAX_MONSTERS; i++) {
         if (!monsters[i].active) continue;
+
+        switch (monsters[i].symbol) {
+            case 'x': attrset(COLOR_PAIR(MONSTERS_COLOR_PAIR) | A_BOLD); break;
+            case 'o': attrset(COLOR_PAIR(ORC_COLOR_PAIR) | A_BOLD); break;
+        }
 
         if (distance(py, px, monsters[i].y, monsters[i].x) < fov) {
             mvaddch(monsters[i].y, monsters[i].x, monsters[i].symbol);

@@ -7,6 +7,7 @@ enum {
     PLAYER_COLOR_PAIR,
     MONEY_COLOR_PAIR,
     MONSTERS_COLOR_PAIR,
+    ORC_COLOR_PAIR,
 };
 
 void ensure_colors(void);

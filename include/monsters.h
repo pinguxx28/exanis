@@ -17,8 +17,7 @@ typedef struct {
 } monster_t;
 
 monster_t *find_monster(int y, int x);
-monster_t make_monster(int y, int x, char symbol, int health, int damage,
-                       float speed);
+monster_t make_monster(int y, int x, char symbol);
 void append_monster(monster_t monster);
 
 void init_monsters(void);

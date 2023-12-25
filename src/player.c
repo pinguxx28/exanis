@@ -17,7 +17,7 @@ player_t *init_player(void) {
 
     *player = (player_t){0};
 
-    player->health = 10;
+    player->health = 15;
     player->damage = 2;
     player->speed = 1;
 
