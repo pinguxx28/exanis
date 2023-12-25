@@ -29,14 +29,14 @@ player_t *init_player(void) {
     return player;
 }
 
-void draw_player(player_t *player) {
+void draw_player(player_t player) {
     attrset(COLOR_PAIR(PLAYER_COLOR_PAIR) | A_BOLD);
-    mvaddch(player->y, player->x, '@');
+    mvaddch(player.y, player.x, '@');
 }
 
-void clear_player(player_t *player) {
-    int c = get_mapch(player->y, player->x);
-    mvaddch(player->y, player->x, c);
+void clear_player(player_t player) {
+    int c = get_mapch(player.y, player.x);
+    mvaddch(player.y, player.x, c);
 }
 
 void move_player(player_t *player, int c) {
@@ -70,7 +70,7 @@ void move_player(player_t *player, int c) {
         if (monster->health <= 0) monster->health = 0;
         load_msg_box("You hit %s HP: %d->%d! ", monster->name, old_health,
                      monster->health);
-    } else if (ch != '-' && ch != '|') {
+    } else if (ch != '-' && ch != '|' && ch != ' ') {
         player->y = newy;
         player->x = newx;
     }

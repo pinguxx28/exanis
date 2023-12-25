@@ -30,7 +30,7 @@ int main() {
     player_t *player = init_player();
 
     do {
-        clear_player(player);
+        clear_player(*player);
         clear_msg_box();
 
         /* updating */
@@ -41,7 +41,7 @@ int main() {
         print_map();
         draw_items(player->y, player->x, PLAYER_FOV);
         draw_monsters(player->y, player->x, PLAYER_FOV);
-        draw_player(player);
+        draw_player(*player);
         draw_player_stats(*player);
         display_msg_box();
         refresh();
