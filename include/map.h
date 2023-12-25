@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#define MAP_HEIGHT 30
+#define MAP_HEIGHT 22
 #define MAP_WIDTH 80
 #define MAP_SIZE (MAP_HEIGHT * MAP_WIDTH)
 #define NDRAWN (1 << 14)

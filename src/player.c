@@ -107,7 +107,7 @@ void move_player(player_t *player, int c) {
 
 void draw_player_stats(player_t player) {
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR) | A_BOLD);
-    move(MAP_HEIGHT + 1, 0);
+    move(MAP_HEIGHT, 0);
 
     char stat_line[81];
     snprintf(stat_line, 80, "$: %d, HP: %d, DMG: %d", player.money,

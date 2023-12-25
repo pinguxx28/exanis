@@ -45,7 +45,7 @@ void display_msg_box(void) {
     if (msg_box == NULL) return;
 
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR) | A_BOLD);
-    mvprintw(MAP_HEIGHT + 2, 0, "%-80s", msg_box);
+    mvprintw(MAP_HEIGHT + 1, 0, "%-80s", msg_box);
 
     if (new_msg_box == NULL || new_msg_box[0] == '\0') return;
 
@@ -57,5 +57,5 @@ void display_msg_box(void) {
         ;
 
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR) | A_BOLD);
-    mvprintw(MAP_HEIGHT + 2, 0, "%-84s", new_msg_box); /* 84 to delete MORE */
+    mvprintw(MAP_HEIGHT + 1, 0, "%-84s", new_msg_box); /* 84 to delete MORE */
 }

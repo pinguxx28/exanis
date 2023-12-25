@@ -5,8 +5,8 @@
 #include "../include/helper.h"
 #include <ncurses.h>
 
-#define SECTION_MIN_W 15
-#define SECTION_MIN_H 15
+#define SECTION_MIN_W 13
+#define SECTION_MIN_H 13
 
 #define CHECK_BOUNDS(y, x, fname)                                              \
     do {                                                                       \
