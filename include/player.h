@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#define PLAYER_FOV 1000
+#define PLAYER_FOV 2.5
 
 typedef struct {
     int y, x;
