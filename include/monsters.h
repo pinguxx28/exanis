@@ -9,6 +9,7 @@
 typedef struct {
     int y, x;
     char symbol;
+    char *name;
     int health;
     int damage;
     float speed;

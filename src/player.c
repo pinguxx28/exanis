@@ -66,7 +66,7 @@ void move_player(player_t *player, int c) {
         int old_health = monster->health;
         monster->health -= player->damage;
         if (monster->health <= 0) monster->health = 0;
-        load_msg_box("You hit monster HP: %d->%d! ", old_health,
+        load_msg_box("You hit %s HP: %d->%d! ", monster->name, old_health,
                      monster->health);
     } else if (ch == '.' || ch == '=' || ch == '#') {
         player->y = newy;

@@ -1,11 +1,13 @@
 #include "../include/monsters.h"
 
 #include "../include/colors.h"
+#include "../include/debug.h"
 #include "../include/helper.h"
 #include "../include/map.h"
 #include "../include/msg_box.h"
 #include <ncurses.h>
 #include <stdlib.h>
+#include <string.h>
 
 monster_t monsters[MAX_MONSTERS];
 
@@ -23,7 +25,7 @@ monster_t *find_monster(int y, int x) {
 
 monster_t make_monster(int y, int x, char symbol, int health, int damage,
                        float speed) {
-    return (monster_t){
+    monster_t monster = {
         .y = y,
         .x = x,
         .symbol = symbol,
@@ -32,6 +34,16 @@ monster_t make_monster(int y, int x, char symbol, int health, int damage,
         .speed = speed,
         .active = true /* isn't really required */
     };
+
+    switch (symbol) {
+        case 'x':
+            monster.name = malloc(strlen("Bug") + 1);
+            strcpy(monster.name, "Bug");
+            break;
+        default: NC_ABORT("unrecognized monster symbol, %c", symbol); break;
+    }
+
+    return monster;
 }
 
 void append_monster(monster_t monster) {
@@ -103,7 +115,7 @@ static void punch_monster(monster_t *monster, int py, int px, int *health) {
     *health -= monster->damage;
     *health = max(*health, 0);
 
-    load_msg_box("Monster hit you HP: %d->%d! ", old_health, *health);
+    load_msg_box("%s hit you HP: %d->%d! ", monster->name, old_health, *health);
 }
 
 void update_monsters(int py, int px, int *health) {
@@ -112,7 +124,7 @@ void update_monsters(int py, int px, int *health) {
 
         if (monsters[i].health <= 0) {
             monsters[i].active = false;
-            load_msg_box("Monster died. ");
+            load_msg_box("%s died. ", monsters[i].name);
             continue;
         }
 
