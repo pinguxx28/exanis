@@ -27,4 +27,5 @@ void init_color_pairs(void) {
     init_pair(MONEY_COLOR_PAIR, COLOR_YELLOW, COLOR_BLACK);
     init_pair(MONSTERS_COLOR_PAIR, COLOR_RED, COLOR_BLACK);
     init_pair(ORC_COLOR_PAIR, COLOR_GREEN, COLOR_BLACK);
+    init_pair(WEAPON_COLOR_PAIR, COLOR_MAGENTA, COLOR_BLACK);
 }

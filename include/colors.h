@@ -8,6 +8,7 @@ enum {
     MONEY_COLOR_PAIR,
     MONSTERS_COLOR_PAIR,
     ORC_COLOR_PAIR,
+    WEAPON_COLOR_PAIR,
 };
 
 void ensure_colors(void);

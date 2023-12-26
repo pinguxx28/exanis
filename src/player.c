@@ -87,7 +87,9 @@ void move_player(player_t *player, int c) {
 
         if (item->symbol == '$') {
             player->money += item->amount;
-            load_msg_box("Cha-ching +$%d", item->amount);
+            load_msg_box("Cha-ching +$%d. ", item->amount);
+        } else {
+            load_msg_box("Picked up %d %s. ", item->amount, item->name);
         }
 
         remove_item(item);
