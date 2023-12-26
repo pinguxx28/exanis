@@ -9,7 +9,6 @@
 
 #define MAX_ITEMS 100
 item_t items[MAX_ITEMS];
-
 item_t make_item(int y, int x, char symbol) {
     item_t item = {
         .y = y,
@@ -23,13 +22,14 @@ item_t make_item(int y, int x, char symbol) {
     switch (symbol) {
         case '$':
             item.amount = random_i(1, 20);
-            item.damage = 0;
+            item.type = MONEY;
             strcpy(item.name, "money");
             break;
         case 't':
             item.amount = 1;
-            item.damage = 4;
-            strcpy(item.name, "sword");
+            item.type = WEAPON;
+            strcpy(item.name, "sword"); /* obsolete */
+            item.weapon = make_weapon(SWORD);
             break;
         default:
             NC_ABORT("unrecognized symbol, in make_item, %c\n", symbol);
@@ -79,17 +79,20 @@ void create_items(void) {
 
             append_item(make_item(y, x, '$'));
         }
+
+        /* weapon */
+        /* 20% chance to spawn a weapon in a room */
+        if (random_i(0, 5) != 0) continue;
+
+        int y, x;
+
+        do {
+            y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
+            x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
+        } while (find_item(y, x) != NULL);
+
+        append_item(make_item(y, x, 't'));
     }
-
-    int y, x;
-    int n = random_i(0, room_ptr);
-
-    do {
-        y = random_i(rooms[n].y, rooms[n].y + rooms[n].h);
-        x = random_i(rooms[n].x, rooms[n].x + rooms[n].w);
-    } while (find_item(y, x) != NULL);
-
-    append_item(make_item(y, x, 't'));
 }
 
 void draw_items(int py, int px, float fov) {

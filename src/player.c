@@ -21,6 +21,9 @@ player_t *init_player(void) {
     player->damage = 2;
     player->speed = 1;
 
+    player->weapon1.type = NONE;
+    player->weapon2.type = NONE;
+
     do {
         player->y = random_i(0, MAP_HEIGHT);
         player->x = random_i(0, MAP_WIDTH);
@@ -85,11 +88,22 @@ void move_player(player_t *player, int c) {
             return;
         }
 
-        if (item->symbol == '$') {
-            player->money += item->amount;
-            load_msg_box("Cha-ching +$%d. ", item->amount);
-        } else {
-            load_msg_box("Picked up %d %s. ", item->amount, item->name);
+        switch (item->type) {
+            case MONEY:
+                player->money += item->amount;
+                load_msg_box("Cha-ching +$%d. ", item->amount);
+                break;
+            case WEAPON:
+                if (player->weapon1.type == NONE) {
+                    player->weapon1 = item->weapon;
+                } else if (player->weapon2.type == NONE) {
+                    player->weapon2 = item->weapon;
+                }
+
+                load_msg_box("Picked up a %s. ", item->weapon.name);
+                break;
+            default:
+                load_msg_box("Picked up %d %s. ", item->amount, item->name);
         }
 
         remove_item(item);

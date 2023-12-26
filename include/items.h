@@ -1,10 +1,11 @@
 #ifndef ITEMS_H
 #define ITEMS_H
 
+#include "../include/weapon.h"
 #include <stdbool.h>
 
 typedef enum {
-    SWORD,
+    WEAPON,
     MONEY,
 } item_type;
 
@@ -17,7 +18,7 @@ typedef struct {
     /* type specific values */
     item_type type;
     int amount;
-    int damage;
+    weapon_t weapon; /* only set when type == WEAPON */
 
     bool active;
 } item_t;
