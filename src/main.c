@@ -34,7 +34,7 @@ int main() {
         clear_msg_box();
 
         /* updating */
-        move_player(player, c);
+        update_player(player, c);
         update_monsters(player->y, player->x, &player->health);
 
         /* drawing */

@@ -20,7 +20,7 @@ typedef struct {
 player_t *init_player(void);
 void draw_player(player_t);
 void clear_player(player_t);
-void move_player(player_t *, int);
+void update_player(player_t *, int c);
 void draw_player_stats(player_t player);
 
 #endif /* PLAYER_H */

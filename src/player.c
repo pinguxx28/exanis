@@ -42,11 +42,9 @@ void clear_player(player_t player) {
     mvaddch(player.y, player.x, c);
 }
 
-void move_player(player_t *player, int c) {
+static void move_player(player_t *player, int c) {
     int newy = player->y;
     int newx = player->x;
-    bool pickup = false;
-    bool decend = false;
 
     /* clang-format off */
     switch (c) {
@@ -58,19 +56,20 @@ void move_player(player_t *player, int c) {
         case 'u': newy--; newx++; break;
         case 'b': newy++; newx--; break;
         case 'n': newy++; newx++; break;
-        case ',': pickup = true; break;
-        case '>': decend = true; break;
     }
     /* clang-format on */
 
     /* only handle movement if we moved */
+    if (newx == player->x && newy == player->y) return;
+
     int ch = get_mapch(newy, newx);
     monster_t *monster = find_monster(newy, newx);
 
     if (monster != NULL) {
         int old_health = monster->health;
         monster->health -= player->damage;
-        if (monster->health <= 0) monster->health = 0;
+        monster->health = max(monster->health, 0);
+
         load_msg_box("You hit %s HP: %d->%d! ", monster->name, old_health,
                      monster->health);
     } else if (ch != '-' && ch != '|' && ch != ' ') {
@@ -79,45 +78,60 @@ void move_player(player_t *player, int c) {
     }
 
     reveal_partial_map(player->y, player->x, PLAYER_FOV);
+}
 
-    if (pickup) {
-        item_t *item = find_item(player->y, player->x);
+static void pickup_player(player_t *player) {
+    item_t *item = find_item(player->y, player->x);
 
-        if (item == NULL) {
-            load_msg_box("Nothing on the ground\n ");
-            return;
-        }
-
-        switch (item->type) {
-            case MONEY:
-                player->money += item->amount;
-                load_msg_box("Cha-ching +$%d. ", item->amount);
-                break;
-            case WEAPON:
-                if (player->weapon1.type == NONE) {
-                    player->weapon1 = item->weapon;
-                } else if (player->weapon2.type == NONE) {
-                    player->weapon2 = item->weapon;
-                }
-
-                load_msg_box("Picked up a %s. ", item->weapon.name);
-                break;
-            default:
-                load_msg_box("Picked up %d %s. ", item->amount, item->name);
-        }
-
-        remove_item(item);
+    if (item == NULL) {
+        load_msg_box("Nothing on the ground. ");
+        return;
     }
 
-    if (decend) {
-        if (get_mapch(player->y, player->x) != '>') {
-            load_msg_box("Can't decend here. ");
-        }
+    switch (item->type) {
+        case MONEY:
+            player->money += item->amount;
+            load_msg_box("Cha-ching +$%d. ", item->amount);
+            break;
+        case WEAPON:
+            if (player->weapon1.type == NONE) {
+                player->weapon1 = item->weapon;
+            } else if (player->weapon2.type == NONE) {
+                player->weapon2 = item->weapon;
+            }
 
-        /* TODO: make this better */
-        endwin();
-        printf("You decended with $%d\n", player->money);
-        exit(0);
+            load_msg_box("Picked up a %s. ", item->weapon.name);
+            break;
+        default: load_msg_box("Picked up %d %s. ", item->amount, item->name);
+    }
+
+    remove_item(item);
+}
+
+static void decend_player(player_t *player) {
+    if (get_mapch(player->y, player->x) != '>') {
+        load_msg_box("Can't decend here. ");
+    }
+
+    /* TODO: make this better */
+    endwin();
+    printf("You decended with $%d\n", player->money);
+    exit(0);
+}
+
+void update_player(player_t *player, int c) {
+    switch (c) {
+        case 'k':
+        case 'j':
+        case 'h':
+        case 'l':
+        case 'y':
+        case 'u':
+        case 'b':
+        case 'n': move_player(player, c); break;
+        case ',': pickup_player(player); break;
+        case '>': decend_player(player); break;
+        default: load_msg_box("Unknown action %c. ", c); break;
     }
 }
 
