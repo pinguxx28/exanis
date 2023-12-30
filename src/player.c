@@ -3,6 +3,7 @@
 #include <ncurses.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "../include/colors.h"
 #include "../include/debug.h"
@@ -21,8 +22,8 @@ player_t *init_player(void) {
     player->damage = 2;
     player->speed = 1;
 
-    player->weapon1.type = NONE;
-    player->weapon2.type = NONE;
+    player->weapon1 = make_weapon(FIST);
+    player->weapon2 = make_weapon(FIST);
 
     do {
         player->y = random_i(0, MAP_HEIGHT);
@@ -40,6 +41,10 @@ void draw_player(player_t player) {
 void clear_player(player_t player) {
     int c = get_mapch(player.y, player.x);
     mvaddch(player.y, player.x, c);
+}
+
+static void update_player_weapon(player_t *player) {
+	player->damage = player->weapon1.damage + player->weapon2.damage;
 }
 
 static void move_player(player_t *player, int c) {
@@ -70,14 +75,19 @@ static void move_player(player_t *player, int c) {
         monster->health -= player->damage;
         monster->health = max(monster->health, 0);
 
-        load_msg_box("You hit %s HP: %d->%d! ", monster->name, old_health,
-                     monster->health);
+		if (player->weapon1.type == player->weapon2.type) {
+			load_msg_box(
+				"You hit %s with %ss, their HP: %d->%d! ",
+				monster->name, player->weapon1.name, old_health, monster->health);
+		} else {
+			load_msg_box(
+				"You hit %s with a %s and a %s, their HP: %d->%d! ",
+				monster->name, player->weapon1.name, player->weapon2.name, old_health, monster->health);
+		}
     } else if (ch != '-' && ch != '|' && ch != ' ') {
         player->y = newy;
         player->x = newx;
     }
-
-    reveal_partial_map(player->y, player->x, PLAYER_FOV);
 }
 
 static void pickup_player(player_t *player) {
@@ -94,15 +104,20 @@ static void pickup_player(player_t *player) {
             load_msg_box("Cha-ching +$%d. ", item->amount);
             break;
         case WEAPON:
-            if (player->weapon1.type == NONE) {
+            if (player->weapon1.type == FIST) {
                 player->weapon1 = item->weapon;
-            } else if (player->weapon2.type == NONE) {
+            } else if (player->weapon2.type == FIST) {
                 player->weapon2 = item->weapon;
             }
 
+			update_player_weapon(player);
+
             load_msg_box("Picked up a %s. ", item->weapon.name);
+			load_msg_box("Equipped a %s. ", item->weapon.name);
             break;
-        default: load_msg_box("Picked up %d %s. ", item->amount, item->name);
+        default:
+            load_msg_box("Picked up %d %s. ", item->amount, item->name);
+            break;
     }
 
     remove_item(item);
@@ -133,6 +148,10 @@ void update_player(player_t *player, int c) {
         case '>': decend_player(player); break;
         default: load_msg_box("Unknown action %c. ", c); break;
     }
+
+    /* has to be here because it redraws the fov */
+    /* meaning it clears the old positions of monsters */
+    reveal_partial_map(player->y, player->x, PLAYER_FOV);
 }
 
 void draw_player_stats(player_t player) {

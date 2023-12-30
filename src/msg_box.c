@@ -1,5 +1,6 @@
 #include "../include/msg_box.h"
 
+#include "../include/debug.h"
 #include "../include/colors.h"
 #include "../include/map.h"
 #include <ncurses.h>
@@ -15,6 +16,9 @@ void load_msg_box(char *msg, ...) {
     va_list arg;
     va_start(arg, msg);
 
+	if (strlen(msg) >= 80) {
+		NC_ABORT("msg too long\n[%s]\naborting\n", msg);
+	}
     char buf[81];
     vsprintf(buf, msg, arg);
 

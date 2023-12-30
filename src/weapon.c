@@ -5,7 +5,7 @@
 
 weapon_t make_weapon(weapon_type type) {
     const char *weapon_names[WEAPON_TYPE_N] = {
-        "none",           "sword",   "club",   "machete", "dagger",
+        "fist",           "sword",   "club",   "machete", "dagger",
         "spear",          "axe",     "mace",   "cleaver", "glavie",
         "scissor blades", "halberd", "katana", "hammer",  "rapier"};
     weapon_t weapon;
@@ -22,9 +22,9 @@ weapon_t make_weapon(weapon_type type) {
             weapon.two_handed = true;
             break;
         default:
-            weapon.damage = 0;
-            weapon.durability = 0;
-            weapon.speed = 0.0;
+            weapon.damage = 1;
+            weapon.durability = 1;
+            weapon.speed = 1.0 / 1.0;
             weapon.two_handed = false;
             break;
     }

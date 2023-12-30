@@ -3,6 +3,7 @@
 #include "../include/colors.h"
 #include "../include/debug.h"
 #include "../include/helper.h"
+#include "../include/items.h"
 #include "../include/map.h"
 #include "../include/msg_box.h"
 #include <ncurses.h>
@@ -28,7 +29,7 @@ monster_t make_monster(int y, int x, char symbol) {
         .y = y,
         .x = x,
         .symbol = symbol,
-        .active = true /* isn't really required */
+        .active = true, /* isn't really required */
     };
 
     switch (symbol) {
@@ -113,7 +114,8 @@ static void move_monster(monster_t *monster, int py, int px) {
         }
     }
 
-    if (get_mapch(newy, newx) == '.' && rand() % 101 <= monsters->speed * 100 &&
+    if (get_mapch(newy, newx) != '-' && get_mapch(newy, newx) != '|' && get_mapch(newy, newx) != '#' &&
+			rand() % 101 <= monsters->speed * 100 &&
         distance(py, px, newy, newx) >= 1) {
         monster->y = newy;
         monster->x = newx;
@@ -148,14 +150,13 @@ void update_monsters(int py, int px, int *health) {
 void draw_monsters(int py, int px, float fov) {
     for (int i = 0; i < MAX_MONSTERS; i++) {
         if (!monsters[i].active) continue;
+        if (distance(py, px, monsters[i].y, monsters[i].x) >= fov) continue;
 
         switch (monsters[i].symbol) {
             case 'x': attrset(COLOR_PAIR(MONSTERS_COLOR_PAIR) | A_BOLD); break;
             case 'o': attrset(COLOR_PAIR(ORC_COLOR_PAIR) | A_BOLD); break;
         }
 
-        if (distance(py, px, monsters[i].y, monsters[i].x) < fov) {
-            mvaddch(monsters[i].y, monsters[i].x, monsters[i].symbol);
-        }
+        mvaddch(monsters[i].y, monsters[i].x, monsters[i].symbol);
     }
 }
