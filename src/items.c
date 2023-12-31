@@ -9,6 +9,7 @@
 
 #define MAX_ITEMS 100
 item_t items[MAX_ITEMS];
+
 item_t make_item(int y, int x, char symbol) {
     item_t item = {
         .y = y,
@@ -28,8 +29,8 @@ item_t make_item(int y, int x, char symbol) {
         case 't':
             item.amount = 1;
             item.type = WEAPON;
-            strcpy(item.name, "sword"); /* obsolete */
             item.weapon = make_weapon(SWORD);
+            strcpy(item.name, item.weapon.name);
             break;
         default:
             NC_ABORT("unrecognized symbol, in make_item, %c\n", symbol);
@@ -67,7 +68,7 @@ void remove_item(item_t *item) {
 }
 
 void create_items(void) {
-    for (int i = 0; i < room_ptr; i++) {
+    for (int i = 0; i < num_rooms; i++) {
         /* money */
         for (int j = 0; j < random_i(0, 4); j++) {
             int y, x;

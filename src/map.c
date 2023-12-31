@@ -11,6 +11,7 @@
 #define CHECK_BOUNDS(y, x, fname)                                              \
     do {                                                                       \
         if ((y) < 0 || (y) >= MAP_HEIGHT || (x) < 0 || (x) >= MAP_WIDTH) {     \
+			*(int*)0 = 0; \
             NC_ABORT("out of bounds\ny: %d, x: %d, inside of %s\n", (y), (x),  \
                      (fname));                                                 \
         }                                                                      \
@@ -19,8 +20,8 @@
 int *map;
 int *seen_map;
 
-int section_ptr = 0;
-int room_ptr = 0;
+int num_sections = 0;
+int num_rooms = 0;
 section_t sections[MAX_SECTIONS];
 room_t rooms[MAX_ROOMS];
 
@@ -44,26 +45,24 @@ void set_seen_mapch(int y, int x, int ch) {
     seen_map[y * MAP_WIDTH + x] = ch;
 }
 
-void print_map(void) {
+void draw_map(void) {
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR));
+
     for (int i = 0; i < MAP_SIZE; i++) {
         int y = i / MAP_WIDTH;
         int x = i % MAP_WIDTH;
 
         int tile = get_seen_mapch(y, x);
+		attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR));
 
-        /* tiles we have seen get drawn slightly foggy */
-        /* while tiles we are currently in the range of */
-        /* we see clearly */
+        /* tiles we have seen get drawn slightly foggy 
+         * while tiles we are currently in the range of
+         * we see clearly */
         if (tile & UNSEEN) {
-            /* don't draw unseen tiles */
-            if ((tile ^ UNSEEN) == ' ') continue;
-
-            attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR));
             mvaddch(y, x, tile ^ UNSEEN);
             set_seen_mapch(y, x, tile ^ UNSEEN);
         } else if (tile & SEEN) {
-            attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR) | A_BOLD);
+            attron(A_BOLD);
             mvaddch(y, x, tile ^ SEEN);
             set_seen_mapch(y, x, tile ^ SEEN);
         }
@@ -106,27 +105,24 @@ static section_t make_section(int y, int x, int h, int w) {
 }
 
 static section_t append_section(section_t s) {
-    sections[section_ptr].y = s.y;
-    sections[section_ptr].x = s.x;
-    sections[section_ptr].h = s.h;
-    sections[section_ptr].w = s.w;
-    sections[section_ptr].active = true;
+    sections[num_sections].y = s.y;
+    sections[num_sections].x = s.x;
+    sections[num_sections].h = s.h;
+    sections[num_sections].w = s.w;
+    sections[num_sections].active = true;
 
-    section_ptr++;
-    if (section_ptr == MAX_SECTIONS) {
+    num_sections++;
+    if (num_sections == MAX_SECTIONS) {
         NC_ABORT("no space for sections\n");
     }
 
-    return sections[section_ptr];
+    return sections[num_sections];
 }
 
-static void generate_sections_recursive(section_t section) {
+static void create_sections_recursive(section_t section) {
     /* BSP algorithm */
 
-    section_t section1, section2;
-    int split_horiz = rand() % 2;
-
-    /* end if sections is small enough */
+    /* end recursion if section is small enough */
     if (section.h <= SECTION_MIN_H || section.w <= SECTION_MIN_W) {
         append_section(section);
         return;
@@ -134,6 +130,7 @@ static void generate_sections_recursive(section_t section) {
 
     /* force split in the desired direction */
     float size_ratio = 2;
+    int split_horiz = rand() % 2;
     if (section.w * size_ratio > section.h) {
         split_horiz = 0;
     }
@@ -141,6 +138,7 @@ static void generate_sections_recursive(section_t section) {
         split_horiz = 1;
     }
 
+    section_t section1, section2;
     if (split_horiz) {
         int split_point = random_i(7, section.h - 7);
         section1 = make_section(section.y, section.x, split_point, section.w);
@@ -153,43 +151,55 @@ static void generate_sections_recursive(section_t section) {
                                 section.w - split_point);
     }
 
-    generate_sections_recursive(section1);
-    generate_sections_recursive(section2);
+    create_sections_recursive(section1);
+    create_sections_recursive(section2);
 }
 
-room_t append_room(int y, int x, int h, int w) {
-    rooms[room_ptr].y = y;
-    rooms[room_ptr].x = x;
-    rooms[room_ptr].h = h;
-    rooms[room_ptr].w = w;
-    rooms[room_ptr].active = true;
+static room_t append_room(int y, int x, int h, int w) {
+    rooms[num_rooms].y = y;
+    rooms[num_rooms].x = x;
+    rooms[num_rooms].h = h;
+    rooms[num_rooms].w = w;
+    rooms[num_rooms].active = true;
 
-    room_ptr++;
-    if (room_ptr > MAX_ROOMS) {
+    num_rooms++;
+    if (num_rooms > MAX_ROOMS) {
         NC_ABORT("no space for room\n");
     }
 
-    return rooms[room_ptr - 1];
+    return rooms[num_rooms - 1];
 }
 
 static void create_rooms(void) {
-    for (int i = 0; i < section_ptr; i++) {
+    for (int i = 0; i < num_sections; i++) {
+		int y = sections[i].y;
+		int x = sections[i].x;
+		int h = sections[i].h;
+		int w = sections[i].w;
+
+		int centre_y = y + h / 2;
+		int centre_x = x + w / 2;
+
+		const int edge_padding = 1;
+		const int centre_padding = 2;
+
+		const int min_w = 4;
+		const int min_h = 4; 
+
         int y1, x1, y2, x2;
 
-        /* clang-format off */
         do {
-            y1 = random_i(sections[i].y + 1, sections[i].y + sections[i].h / 2 - 2);
-            x1 = random_i(sections[i].x + 1, sections[i].x + sections[i].w / 2 - 2);
-            y2 = random_i(sections[i].y + sections[i].h / 2 + 2, sections[i].y + sections[i].h - 1);
-            x2 = random_i(sections[i].x + sections[i].w / 2 + 2, sections[i].x + sections[i].w - 1);
-        } while (y2 - y1 < 4 || x2 - x1 < 4);
-        /* clang-format on */
+            y1 = random_i(y + edge_padding, centre_y - centre_padding);
+            x1 = random_i(x + edge_padding, centre_x - centre_padding);
+            y2 = random_i(centre_y + centre_padding, y + h - edge_padding);
+            x2 = random_i(centre_x + centre_padding, x + w - edge_padding);
+        } while (y2 - y1 < min_h || x2 - x1 < min_w);
 
-        int h = y2 - y1;
-        int w = x2 - x1;
+		w = x2 - x1;
+		h = y2 - y1;
+
         append_room(y1, x1, h, w);
 
-        /* draw room */
         /* sides (right and left) */
         for (int y = y1; y < y2; y++) {
             set_mapch(y, x1 - 1, '|');
@@ -212,40 +222,34 @@ static void create_rooms(void) {
     }
 }
 
-static void make_corridors(void) {
-    for (int i = 0; i < room_ptr; i++) {
-        int cy1 = rooms[i].y + rooms[i].h / 2;
-        int cx1 = rooms[i].x + rooms[i].w / 2;
+static void create_corridors(void) {
+    for (int i = 0; i < num_rooms; i++) {
+        int centre_y1 = rooms[i].y + rooms[i].h / 2;
+        int centre_x1 = rooms[i].x + rooms[i].w / 2;
 
-        int j = i + (i + 1 == room_ptr ? 0 : 1);
+        int next_room = i + (i + 1 == num_rooms ? 0 : 1);
 
-        int cy2 = rooms[j].y + rooms[j].h / 2;
-        int cx2 = rooms[j].x + rooms[j].w / 2;
+        int centre_y2 = rooms[next_room].y + rooms[next_room].h / 2;
+        int centre_x2 = rooms[next_room].x + rooms[next_room].w / 2;
 
-        while (cy1 != cy2) {
-            int c = '.';
-            if (get_mapch(cy1, cx1) != '.') {
-                c = '#';
-            }
+        while (centre_y1 != centre_y2) {
+            int c = get_mapch(centre_y1, centre_x1) == '.' ? '.' : '#';
 
-            set_mapch(cy1, cx1, c);
-            cy1 += (cy1 < cy2) ? 1 : -1;
+            set_mapch(centre_y1, centre_x1, c);
+            centre_y1 += (centre_y1 < centre_y2) ? 1 : -1;
         }
 
-        while (cx1 != cx2) {
-            int c = '.';
-            if (get_mapch(cy1, cx1) != '.') {
-                c = '#';
-            }
+        while (centre_x1 != centre_x2) {
+            int c = get_mapch(centre_y1, centre_x1) == '.' ? '.' : '#';
 
-            set_mapch(cy1, cx1, c);
-            cx1 += (cx1 < cx2) ? 1 : -1;
+            set_mapch(centre_y1, centre_x1, c);
+            centre_x1 += (centre_x1 < centre_x2) ? 1 : -1;
         }
     }
 }
 
-static void make_staircase(void) {
-    int n = random_i(0, room_ptr);
+static void create_staircase(void) {
+    int n = random_i(0, num_rooms);
 
     int y = random_i(rooms[n].y, rooms[n].y + rooms[n].h);
     int x = random_i(rooms[n].x, rooms[n].x + rooms[n].w);
@@ -253,11 +257,11 @@ static void make_staircase(void) {
     set_mapch(y, x, '>');
 }
 
-void generate_map(void) {
+void create_map(void) {
     section_t map = make_section(0, 0, MAP_HEIGHT, MAP_WIDTH);
     init_maps();
-    generate_sections_recursive(map);
+    create_sections_recursive(map);
     create_rooms();
-    make_corridors();
-    make_staircase();
+    create_corridors();
+    create_staircase();
 }

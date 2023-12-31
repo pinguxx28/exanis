@@ -10,6 +10,7 @@ int random_i(int low, int high) {
 
     return low + (rand() % (high - low));
 }
+
 float random_f(float low, float high) {
     if (low == high) {
         return low;

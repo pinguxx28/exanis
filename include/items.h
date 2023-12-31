@@ -1,8 +1,8 @@
 #ifndef ITEMS_H
 #define ITEMS_H
 
-#include "../include/weapon.h"
 #include <stdbool.h>
+#include "../include/weapon.h"
 
 typedef enum {
     WEAPON,
@@ -11,16 +11,14 @@ typedef enum {
 
 typedef struct {
     int x, y;
-
     char symbol;
     char *name;
+    bool active;
 
     /* type specific values */
     item_type type;
     int amount;
     weapon_t weapon; /* only set when type == WEAPON */
-
-    bool active;
 } item_t;
 
 item_t make_item(int y, int x, char symbol);

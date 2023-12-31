@@ -67,7 +67,7 @@ void append_monster(monster_t monster) {
 }
 
 void init_monsters(void) {
-    for (int i = 0; i < room_ptr; i++) {
+    for (int i = 0; i < num_rooms; i++) {
         int amount = random_i(1, 1 + rooms[i].h * rooms[i].w / 50);
 
         for (int j = 0; j < amount; j++) {
@@ -114,8 +114,8 @@ static void move_monster(monster_t *monster, int py, int px) {
         }
     }
 
-    if (get_mapch(newy, newx) != '-' && get_mapch(newy, newx) != '|' && get_mapch(newy, newx) != '#' &&
-			rand() % 101 <= monsters->speed * 100 &&
+    if (get_mapch(newy, newx) != '-' && get_mapch(newy, newx) != '|' &&
+        get_mapch(newy, newx) != '#' && rand() % 101 <= monsters->speed * 100 &&
         distance(py, px, newy, newx) >= 1) {
         monster->y = newy;
         monster->x = newx;

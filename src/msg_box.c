@@ -45,7 +45,7 @@ void clear_msg_box(void) {
     new_msg_box[0] = '\0';
 }
 
-void display_msg_box(void) {
+void draw_msg_box(void) {
     if (msg_box == NULL) return;
 
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR) | A_BOLD);

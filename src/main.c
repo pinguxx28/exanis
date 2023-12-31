@@ -9,27 +9,30 @@
 #include <time.h>
 
 int main() {
+	/* non-ncurses setup */
     srand(time(0));
 
-    int c = 'h';
-
+	/* ncurses setup */
     initscr();
     noecho();
     raw();
     curs_set(0);
 
+	/* colors */
     ensure_colors();
     start_color();
     init_color_pairs();
 
-    generate_map();
+	/* exanis features */
+    create_map();
     create_items();
     init_monsters();
     init_msg_box();
 
     player_t *player = init_player();
 
-    do {
+    int c = ' ';
+	do {
         clear_player(*player);
         clear_msg_box();
 
@@ -37,13 +40,16 @@ int main() {
         update_player(player, c);
         update_monsters(player->y, player->x, &player->health);
 
-        /* drawing */
-        print_map();
+        /* map drawing */
+        draw_map();
         draw_items(player->y, player->x, PLAYER_FOV);
         draw_monsters(player->y, player->x, PLAYER_FOV);
         draw_player(*player);
+
+		/* line drawing */
         draw_player_stats(*player);
-        display_msg_box();
+		draw_msg_box();
+
         refresh();
     } while ((c = getch()) != 'q');
 
