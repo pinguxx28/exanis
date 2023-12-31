@@ -11,7 +11,6 @@
 #define CHECK_BOUNDS(y, x, fname)                                              \
     do {                                                                       \
         if ((y) < 0 || (y) >= MAP_HEIGHT || (x) < 0 || (x) >= MAP_WIDTH) {     \
-			*(int*)0 = 0; \
             NC_ABORT("out of bounds\ny: %d, x: %d, inside of %s\n", (y), (x),  \
                      (fname));                                                 \
         }                                                                      \
