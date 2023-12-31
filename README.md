@@ -6,7 +6,8 @@ I will take this project.
 
 ## How to play
 
-Exanis is actually only dependant on ncurses for now. To install ncurses type:  
+Exanis is actually only dependant on ncurses for now.
+To install ncurses type:  
 ```
 sudo apt install libncurses5
 ```
