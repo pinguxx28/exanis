@@ -4,6 +4,9 @@ I've decided to create a ASCII RogueLike just as a hobby project.
 For now I don't have any specific plans for it, and I don't know how long
 I will take this project.
 
+![exanis-preview](assets/screenshot.png)
+![exanis-xray-preview](assets/screenshot-xray.png)
+
 ## How to play
 
 Exanis is actually only dependant on ncurses for now.
