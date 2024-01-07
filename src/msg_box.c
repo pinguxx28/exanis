@@ -1,8 +1,8 @@
-#include "../include/msg_box.h"
+#include "msg_box.h"
 
-#include "../include/debug.h"
-#include "../include/colors.h"
-#include "../include/map.h"
+#include "debug.h"
+#include "colors.h"
+#include "map.h"
 #include <ncurses.h>
 #include <stdarg.h>
 #include <stdlib.h>

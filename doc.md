@@ -3,6 +3,10 @@
 ## General about the code
 
 - All .c files should have a corresponding .h file in include/
+- Only C style comments, so don't put C++ style comments (//)
+- Names should be as long as needed but as short as neccessary
+- If statements must ALWAYS have brackets EXCEPT if they contain continue, break, goto or return
+- Comments with WARNING indicate a bad code example that must be changed
 - .active describes if the struct exists, then it gets updated and drawn
 
 - Function prefixes:

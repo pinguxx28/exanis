@@ -4,22 +4,11 @@
 #include <stdbool.h>
 
 typedef enum {
-    FIST,
+    NONE,
     SWORD,
     CLUB,
     MACHETE,
-    DAGGER,
-    SPEAR,
-    AXE,
-    MACE,
-    CLEAVER,
-    GLAVIE,
-    SCISSOR_BLADES,
-    HALBERD,
-    KATANA,
-    HAMMER,
-    RAPIER,
-    WEAPON_TYPE_N,
+	WEAPON_TYPE_N,
 } weapon_type;
 
 typedef struct {

@@ -1,6 +1,6 @@
-#include "../include/colors.h"
+#include "colors.h"
 
-#include "../include/debug.h"
+#include "debug.h"
 
 void ensure_colors(void) {
     if (has_colors() == FALSE) {

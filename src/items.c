@@ -1,11 +1,11 @@
-#include "../include/items.h"
+#include "items.h"
 
-#include "../include/colors.h"
-#include "../include/debug.h"
-#include "../include/helper.h"
-#include "../include/map.h"
 #include <ncurses.h>
 #include <string.h>
+#include "colors.h"
+#include "debug.h"
+#include "helper.h"
+#include "map.h"
 
 #define MAX_ITEMS 100
 item_t items[MAX_ITEMS];
@@ -18,23 +18,24 @@ item_t make_item(int y, int x, char symbol) {
         .active = true,
     };
 
-    item.name = malloc(24);
-
     switch (symbol) {
         case '$':
-            item.amount = random_i(1, 20);
             item.type = MONEY;
+            item.amount = random_i(1, 20);
+
+			item.name = malloc(strlen("money") + 1);
             strcpy(item.name, "money");
             break;
         case 't':
-            item.amount = 1;
             item.type = WEAPON;
+            item.amount = 1;
             item.weapon = make_weapon(SWORD);
+
+			item.name = malloc(strlen(item.weapon.name) + 1);
             strcpy(item.name, item.weapon.name);
             break;
         default:
             NC_ABORT("unrecognized symbol, in make_item, %c\n", symbol);
-            break;
     }
 
     return item;
@@ -54,10 +55,7 @@ void append_item(item_t item) {
 item_t *find_item(int y, int x) {
     for (int i = 0; i < MAX_ITEMS; i++) {
         if (!items[i].active) continue;
-
-        if (y == items[i].y && x == items[i].x) {
-            return &items[i];
-        }
+        if (y == items[i].y && x == items[i].x) return &items[i];
     }
 
     return NULL;
@@ -68,6 +66,7 @@ void remove_item(item_t *item) {
 }
 
 void create_items(void) {
+	/* TODO: not the most elegant code but really can't be bothered rn tbh */
     for (int i = 0; i < num_rooms; i++) {
         /* money */
         for (int j = 0; j < random_i(0, 4); j++) {
@@ -100,12 +99,13 @@ void draw_items(int py, int px, float fov) {
     for (int i = 0; i < MAX_ITEMS; i++) {
         if (!items[i].active) continue;
 
+        attrset(A_BOLD);
+
         switch (items[i].symbol) {
-            case '$': attrset(COLOR_PAIR(MONEY_COLOR_PAIR)); break;
-            case 't': attrset(COLOR_PAIR(WEAPON_COLOR_PAIR)); break;
+            case '$': attron(COLOR_PAIR( MONEY_COLOR_PAIR)); break;
+            case 't': attron(COLOR_PAIR(WEAPON_COLOR_PAIR)); break;
         }
 
-        attron(A_BOLD);
 
         if (distance(py, px, items[i].y, items[i].x) <= fov) {
             mvaddch(items[i].y, items[i].x, items[i].symbol);

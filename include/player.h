@@ -3,7 +3,7 @@
 
 #define PLAYER_FOV 2.5
 
-#include "../include/weapon.h"
+#include "weapon.h"
 
 typedef struct {
     int y, x;
@@ -14,7 +14,7 @@ typedef struct {
     int damage;
     int speed;
 
-    weapon_t weapon1, weapon2;
+    weapon_t weapon;
 } player_t;
 
 player_t *init_player(void);

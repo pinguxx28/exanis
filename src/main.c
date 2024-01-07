@@ -1,9 +1,9 @@
-#include "../include/colors.h"
-#include "../include/items.h"
-#include "../include/map.h"
-#include "../include/monsters.h"
-#include "../include/msg_box.h"
-#include "../include/player.h"
+#include "colors.h"
+#include "items.h"
+#include "map.h"
+#include "monsters.h"
+#include "msg_box.h"
+#include "player.h"
 #include <ncurses.h>
 #include <stdlib.h>
 #include <time.h>

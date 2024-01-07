@@ -2,7 +2,7 @@
 #define ITEMS_H
 
 #include <stdbool.h>
-#include "../include/weapon.h"
+#include "weapon.h"
 
 typedef enum {
     WEAPON,
@@ -11,14 +11,16 @@ typedef enum {
 
 typedef struct {
     int x, y;
-    char symbol;
+    int amount;
     char *name;
+    char symbol;
     bool active;
 
     /* type specific values */
     item_type type;
-    int amount;
-    weapon_t weapon; /* only set when type == WEAPON */
+	/* only set when type is WEAPON */
+	/* otherwise it is undefined */
+    weapon_t weapon; 
 } item_t;
 
 item_t make_item(int y, int x, char symbol);

@@ -1,10 +1,10 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-/* ensures that we have all the functions required */
-#include <ncurses.h>
+/* make sure we have all libraries needed */
 #include <stdio.h>
 #include <stdlib.h>
+#include <ncurses.h>
 
 #define NC_ABORT(...)                                                          \
     do {                                                                       \

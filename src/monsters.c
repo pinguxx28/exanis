@@ -1,24 +1,22 @@
-#include "../include/monsters.h"
+#include "monsters.h"
 
-#include "../include/colors.h"
-#include "../include/debug.h"
-#include "../include/helper.h"
-#include "../include/items.h"
-#include "../include/map.h"
-#include "../include/msg_box.h"
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "colors.h"
+#include "debug.h"
+#include "helper.h"
+#include "items.h"
+#include "map.h"
+#include "msg_box.h"
 
 monster_t monsters[MAX_MONSTERS];
 
 monster_t *find_monster(int y, int x) {
     for (int i = 0; i < MAX_MONSTERS; i++) {
         if (!monsters[i].active) continue;
-
-        if (y == monsters[i].y && x == monsters[i].x) {
-            return &monsters[i];
-        }
+        if (y == monsters[i].y && x == monsters[i].x) return &monsters[i];
     }
 
     return NULL;

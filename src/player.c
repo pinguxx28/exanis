@@ -1,34 +1,38 @@
-#include "../include/player.h"
+#include "player.h"
 
 #include <ncurses.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "../include/colors.h"
-#include "../include/debug.h"
-#include "../include/helper.h"
-#include "../include/items.h"
-#include "../include/map.h"
-#include "../include/monsters.h"
-#include "../include/msg_box.h"
+#include "colors.h"
+#include "debug.h"
+#include "helper.h"
+#include "items.h"
+#include "map.h"
+#include "monsters.h"
+#include "msg_box.h"
 
 player_t *init_player(void) {
     player_t *player = malloc(sizeof(player_t));
 
-    *player = (player_t){0};
+	player->money = 0;
 
     player->health = 15;
     player->damage = 2;
     player->speed = 1;
 
-    player->weapon1 = make_weapon(FIST);
-    player->weapon2 = make_weapon(FIST);
+    player->weapon = make_weapon(NONE);
 
+	/* find a random empty square to stand on */
+	/* WARNING: could take time */
     do {
         player->y = random_i(0, MAP_HEIGHT);
         player->x = random_i(0, MAP_WIDTH);
-    } while (get_mapch(player->y, player->x) != '.');
+    } while (
+		get_mapch(player->y, player->x) != '.' &&
+		find_monster(player->y, player->x) == NULL &&
+		find_item(player->y, player->x));
 
     return player;
 }
@@ -43,15 +47,10 @@ void clear_player(player_t player) {
     mvaddch(player.y, player.x, c);
 }
 
-static void update_player_weapon(player_t *player) {
-	player->damage = player->weapon1.damage + player->weapon2.damage;
-}
-
 static void move_player(player_t *player, int c) {
     int newy = player->y;
     int newx = player->x;
 
-    /* clang-format off */
     switch (c) {
         case 'k': newy--; break;
         case 'j': newy++; break;
@@ -62,7 +61,6 @@ static void move_player(player_t *player, int c) {
         case 'b': newy++; newx--; break;
         case 'n': newy++; newx++; break;
     }
-    /* clang-format on */
 
     /* only handle movement if we moved */
     if (newx == player->x && newy == player->y) return;
@@ -70,20 +68,15 @@ static void move_player(player_t *player, int c) {
     int ch = get_mapch(newy, newx);
     monster_t *monster = find_monster(newy, newx);
 
+	/* if we try move onto a tile containing a monster */
+	/* we hit the monster instead of moving */
     if (monster != NULL) {
         int old_health = monster->health;
         monster->health -= player->damage;
         monster->health = max(monster->health, 0);
 
-		if (player->weapon1.type == player->weapon2.type) {
-			load_msg_box(
-				"You hit %s with %ss, their HP: %d->%d! ",
-				monster->name, player->weapon1.name, old_health, monster->health);
-		} else {
-			load_msg_box(
-				"You hit %s with a %s and a %s, their HP: %d->%d! ",
-				monster->name, player->weapon1.name, player->weapon2.name, old_health, monster->health);
-		}
+		load_msg_box("You hit %s with a %s, its HP: %d->%d! ",
+			monster->name, player->weapon.name, old_health, monster->health);
     } else if (ch != '-' && ch != '|' && ch != ' ') {
         player->y = newy;
         player->x = newx;
@@ -104,16 +97,9 @@ static void pickup_player(player_t *player) {
             load_msg_box("Cha-ching +$%d. ", item->amount);
             break;
         case WEAPON:
-            if (player->weapon1.type == FIST) {
-                player->weapon1 = item->weapon;
-            } else if (player->weapon2.type == FIST) {
-                player->weapon2 = item->weapon;
-            }
-
-			update_player_weapon(player);
-
-            load_msg_box("Picked up a %s. ", item->weapon.name);
-			load_msg_box("Equipped a %s. ", item->weapon.name);
+			player->weapon = item->weapon;
+			player->damage = item->weapon.damage;
+            load_msg_box("Picked up and eqiupped a %s. ", item->weapon.name);
             break;
         default:
             load_msg_box("Picked up %d %s. ", item->amount, item->name);
@@ -156,10 +142,9 @@ void update_player(player_t *player, int c) {
 
 void draw_player_stats(player_t player) {
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR) | A_BOLD);
-    move(MAP_HEIGHT, 0);
 
     char stat_line[81];
-    snprintf(stat_line, 80, "$: %d, HP: %d, DMG: %d", player.money,
-             player.health, player.damage);
-    printw("%-80s", stat_line);
+    snprintf(stat_line, 80, "$: %d, HP: %d, DMG: %d",
+			player.money, player.health, player.damage);
+    mvprintw(MAP_HEIGHT, 0, "%-80s", stat_line);
 }

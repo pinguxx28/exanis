@@ -8,11 +8,13 @@
 
 typedef struct {
     int y, x;
-    char symbol;
     char *name;
+    char symbol;
+
     int health;
     int damage;
     float speed;
+
     bool active;
 } monster_t;
 

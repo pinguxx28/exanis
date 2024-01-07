@@ -3,16 +3,15 @@
 
 #include <stdbool.h>
 
+#define MAP_WIDTH  80
 #define MAP_HEIGHT 22
-#define MAP_WIDTH 80
-#define MAP_SIZE (MAP_HEIGHT * MAP_WIDTH)
+#define MAP_SIZE (MAP_WIDTH * MAP_HEIGHT)
 
-#define NDRAWN (1 << 14)
-#define SEEN (1 << 13)
+#define SEEN   (1 << 13)
 #define UNSEEN (1 << 12)
 
 #define MAX_SECTIONS 100
-#define MAX_ROOMS 100
+#define MAX_ROOMS    100
 
 typedef struct {
     int y, x;
