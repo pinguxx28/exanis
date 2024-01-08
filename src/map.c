@@ -1,8 +1,8 @@
-#include "../include/map.h"
+#include "map.h"
 
-#include "../include/colors.h"
-#include "../include/debug.h"
-#include "../include/helper.h"
+#include "colors.h"
+#include "debug.h"
+#include "helper.h"
 #include <ncurses.h>
 
 #define SECTION_MIN_W 13
@@ -11,8 +11,8 @@
 #define CHECK_BOUNDS(y, x, fname)                                              \
     do {                                                                       \
         if ((y) < 0 || (y) >= MAP_HEIGHT || (x) < 0 || (x) >= MAP_WIDTH) {     \
-            NC_ABORT("out of bounds\ny: %d, x: %d, inside of %s\n", (y), (x),  \
-                     (fname));                                                 \
+            NC_ABORT("out of bounds\ny: %d, x: %d, inside of %s\n",            \
+					(y), (x), (fname));                                        \
         }                                                                      \
     } while (0)
 
