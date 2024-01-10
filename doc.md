@@ -7,6 +7,7 @@
 - Names should be as long as needed but as short as neccessary
 - If statements must ALWAYS have brackets EXCEPT if they contain continue, break, goto or return
 - Comments with WARNING indicate a bad code example that must be changed
+- Includes should be grouped in <> and "" includes they should be sorted by length
 - .active describes if the struct exists, then it gets updated and drawn
 
 - Function prefixes:

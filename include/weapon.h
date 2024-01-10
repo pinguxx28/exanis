@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 typedef enum {
-    NONE,
+    FIST,
     SWORD,
     CLUB,
     MACHETE,

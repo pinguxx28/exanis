@@ -3,13 +3,17 @@
 #include <math.h>
 #include <stdlib.h>
 
+#include "debug.h"
+
 int random_i(int low, int high) {
     if (low == high) return low;
+	if (low > high) NC_ABORT("low > high, %d > %d\n", low, high);
     return low + (rand() % (high - low));
 }
 
 float random_f(float low, float high) {
     if (low == high) return low;
+	if (low > high) NC_ABORT("low > high, %f > %f\n", low, high);
     return low + ((float)rand() / (float)RAND_MAX) * (high - low);
 }
 

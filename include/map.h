@@ -7,11 +7,10 @@
 #define MAP_HEIGHT 22
 #define MAP_SIZE (MAP_WIDTH * MAP_HEIGHT)
 
-#define SEEN   (1 << 13)
-#define UNSEEN (1 << 12)
+#define SEEN   (1 << 9)
+#define UNSEEN (1 << 8)
 
 #define MAX_SECTIONS 100
-#define MAX_ROOMS    100
 
 typedef struct {
     int y, x;
@@ -25,10 +24,8 @@ typedef struct {
     bool active;
 } room_t;
 
-extern int num_sections;
 extern int num_rooms;
-extern section_t sections[MAX_SECTIONS];
-extern room_t rooms[MAX_ROOMS];
+extern room_t rooms[MAX_SECTIONS];
 
 /* map index functions */
 int get_mapch(int y, int x);

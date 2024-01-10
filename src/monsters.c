@@ -1,14 +1,14 @@
 #include "monsters.h"
 
-#include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ncurses.h>
 
-#include "colors.h"
-#include "debug.h"
-#include "helper.h"
-#include "items.h"
 #include "map.h"
+#include "debug.h"
+#include "items.h"
+#include "colors.h"
+#include "helper.h"
 #include "msg_box.h"
 
 monster_t monsters[MAX_MONSTERS];
@@ -26,14 +26,14 @@ monster_t make_monster(int y, int x, char symbol) {
     monster_t monster = {
         .y = y,
         .x = x,
-        .symbol = symbol,
-        .active = true, /* isn't really required */
+        .symbol = symbol
     };
 
     switch (symbol) {
         case 'x':
             monster.name = malloc(strlen("Bug") + 1);
             strcpy(monster.name, "Bug");
+
             monster.health = 2;
             monster.damage = 1;
             monster.speed = 2.0 / 3.0;
@@ -41,11 +41,14 @@ monster_t make_monster(int y, int x, char symbol) {
         case 'o':
             monster.name = malloc(strlen("Orc") + 1);
             strcpy(monster.name, "Orc");
+
             monster.health = 6;
             monster.damage = 3;
             monster.speed = 1.0 / 2.0;
             break;
-        default: NC_ABORT("unrecognized monster symbol, %c", symbol); break;
+        default:
+			NC_ABORT("unrecognized monster symbol, %c", symbol);
+			break;
     }
 
     return monster;
@@ -56,15 +59,14 @@ void append_monster(monster_t monster) {
         if (monsters[i].active) continue;
 
         monsters[i] = monster;
-
-        /* just make sure that we set it to active */
-        /* doesn't harm anyone */
         monsters[i].active = true;
         break;
     }
 }
 
 void init_monsters(void) {
+	/* TODO: make this better */
+
     for (int i = 0; i < num_rooms; i++) {
         int amount = random_i(1, 1 + rooms[i].h * rooms[i].w / 50);
 
@@ -112,9 +114,15 @@ static void move_monster(monster_t *monster, int py, int px) {
         }
     }
 
-    if (get_mapch(newy, newx) != '-' && get_mapch(newy, newx) != '|' &&
-        get_mapch(newy, newx) != '#' && rand() % 101 <= monsters->speed * 100 &&
-        distance(py, px, newy, newx) >= 1) {
+	bool valid_tile =
+		get_mapch(newy, newx) != '-' &&
+		get_mapch(newy, newx) != '|' &&
+        get_mapch(newy, newx) != '#';
+	bool should_move =
+		rand() % 101 <= monsters->speed * 100 &&
+        distance(py, px, newy, newx) >= 1;
+
+    if (valid_tile && should_move) {
         monster->y = newy;
         monster->x = newx;
     }
@@ -127,7 +135,8 @@ static void punch_monster(monster_t *monster, int py, int px, int *health) {
     *health -= monster->damage;
     *health = max(*health, 0);
 
-    load_msg_box("%s hit you HP: %d->%d! ", monster->name, old_health, *health);
+    load_msg_box("%s hit you HP: %d->%d! ",
+		monster->name, old_health, *health);
 }
 
 void update_monsters(int py, int px, int *health) {
@@ -152,7 +161,7 @@ void draw_monsters(int py, int px, float fov) {
 
         switch (monsters[i].symbol) {
             case 'x': attrset(COLOR_PAIR(MONSTERS_COLOR_PAIR) | A_BOLD); break;
-            case 'o': attrset(COLOR_PAIR(ORC_COLOR_PAIR) | A_BOLD); break;
+            case 'o': attrset(COLOR_PAIR(ORC_COLOR_PAIR)      | A_BOLD); break;
         }
 
         mvaddch(monsters[i].y, monsters[i].x, monsters[i].symbol);

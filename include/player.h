@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#define PLAYER_FOV 2.5
+#define PLAYER_FOV 1000
 
 #include "weapon.h"
 

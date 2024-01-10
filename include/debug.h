@@ -10,7 +10,7 @@
     do {                                                                       \
         endwin();                                                              \
         fprintf(stderr, __VA_ARGS__);                                          \
-        exit(1);                                                               \
+		abort(); \
     } while (0)
 
 #endif /* DEBUG_H */

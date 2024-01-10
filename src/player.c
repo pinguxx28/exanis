@@ -1,17 +1,17 @@
 #include "player.h"
 
-#include <ncurses.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+#include <ncurses.h>
 
-#include "colors.h"
-#include "debug.h"
-#include "helper.h"
-#include "items.h"
 #include "map.h"
-#include "monsters.h"
+#include "debug.h"
+#include "items.h"
+#include "colors.h"
+#include "helper.h"
 #include "msg_box.h"
+#include "monsters.h"
 
 player_t *init_player(void) {
     player_t *player = malloc(sizeof(player_t));
@@ -22,17 +22,20 @@ player_t *init_player(void) {
     player->damage = 2;
     player->speed = 1;
 
-    player->weapon = make_weapon(NONE);
+    player->weapon = make_weapon(FIST);
 
-	/* find a random empty square to stand on */
-	/* WARNING: could take time */
+	player->y = 0;
+	player->x = 0;
+
+	room_t *room = &rooms[random_i(0, num_rooms)];
+	bool on_item, on_monster;
+
     do {
-        player->y = random_i(0, MAP_HEIGHT);
-        player->x = random_i(0, MAP_WIDTH);
-    } while (
-		get_mapch(player->y, player->x) != '.' &&
-		find_monster(player->y, player->x) == NULL &&
-		find_item(player->y, player->x));
+        player->y = random_i(room->y, room->y + room->h);
+        player->x = random_i(room->x, room->x + room->w);
+		on_item = find_item(player->y, player->x) != NULL;
+		on_monster = find_monster(player->y, player->x) != NULL;
+    } while (on_item || on_monster);
 
     return player;
 }
@@ -65,8 +68,12 @@ static void move_player(player_t *player, int c) {
     /* only handle movement if we moved */
     if (newx == player->x && newy == player->y) return;
 
+
     int ch = get_mapch(newy, newx);
+	bool valid_tile = ch != '-' && ch != '|' && ch != ' ';
+
     monster_t *monster = find_monster(newy, newx);
+
 
 	/* if we try move onto a tile containing a monster */
 	/* we hit the monster instead of moving */
@@ -77,7 +84,7 @@ static void move_player(player_t *player, int c) {
 
 		load_msg_box("You hit %s with a %s, its HP: %d->%d! ",
 			monster->name, player->weapon.name, old_health, monster->health);
-    } else if (ch != '-' && ch != '|' && ch != ' ') {
+    } else if (valid_tile) {
         player->y = newy;
         player->x = newx;
     }
@@ -91,6 +98,10 @@ static void pickup_player(player_t *player) {
         return;
     }
 
+	/* remove item from ground */
+    remove_item(item);
+
+	/* insert item to inventory */
     switch (item->type) {
         case MONEY:
             player->money += item->amount;
@@ -102,11 +113,8 @@ static void pickup_player(player_t *player) {
             load_msg_box("Picked up and eqiupped a %s. ", item->weapon.name);
             break;
         default:
-            load_msg_box("Picked up %d %s. ", item->amount, item->name);
-            break;
+			NC_ABORT("Unknown item: %s (type: %d)\n", item->name, item->type);
     }
-
-    remove_item(item);
 }
 
 static void decend_player(player_t *player) {
@@ -132,6 +140,7 @@ void update_player(player_t *player, int c) {
         case 'n': move_player(player, c); break;
         case ',': pickup_player(player); break;
         case '>': decend_player(player); break;
+		case ' ': break; /* do nothing */
         default: load_msg_box("Unknown action %c. ", c); break;
     }
 

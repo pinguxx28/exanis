@@ -2,11 +2,12 @@
 
 #include <stdlib.h>
 #include <string.h>
+
 #include "debug.h"
 
 weapon_t make_weapon(weapon_type type) {
     const char *weapon_names[WEAPON_TYPE_N] =
-		{ "none", "sword", "club", "machete" };
+		{ "fist", "sword", "club", "machete" };
     weapon_t weapon;
 
     weapon.type = type;
@@ -15,7 +16,7 @@ weapon_t make_weapon(weapon_type type) {
 
 	/* WARNING: Bad hard coded values */
     switch (type) {
-		case NONE:
+		case FIST:
 			weapon.damage = 2;
 			weapon.durability = 100;
 			weapon.speed = 4.0 / 5.0;
