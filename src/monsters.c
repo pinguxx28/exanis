@@ -48,7 +48,6 @@ monster_t make_monster(int y, int x, char symbol) {
             break;
         default:
 			NC_ABORT("unrecognized monster symbol, %c", symbol);
-			break;
     }
 
     return monster;
@@ -64,27 +63,31 @@ void append_monster(monster_t monster) {
     }
 }
 
-void init_monsters(void) {
-	/* TODO: make this better */
+void create_monsters(void) {
+	for (int i = 0; i < MAX_MONSTERS; i++) {
+		monsters[i].active = false;
+	}
 
     for (int i = 0; i < num_rooms; i++) {
-        int amount = random_i(1, 1 + rooms[i].h * rooms[i].w / 50);
+		int y, x;
 
+        int amount = random_i(1, 1 + rooms[i].h * rooms[i].w / 50);
         for (int j = 0; j < amount; j++) {
-            int y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
-            int x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
+            y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
+            x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
             append_monster(make_monster(y, x, 'x'));
         }
 
-        if (random_i(0, 4) == 0) {
-            int y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
-            int x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
+		bool create_orc = random_i(0, 4) == 0;
+        if (create_orc) {
+            y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
+            x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
             append_monster(make_monster(y, x, 'o'));
         }
     }
 }
 
-static void move_monster(monster_t *monster, int py, int px) {
+static void handle_monster_movement(monster_t *monster, int py, int px) {
     int newy = monster->y;
     int newx = monster->x;
 
@@ -128,9 +131,7 @@ static void move_monster(monster_t *monster, int py, int px) {
     }
 }
 
-static void punch_monster(monster_t *monster, int py, int px, int *health) {
-    if (distance(py, px, monster->y, monster->x) > 1) return;
-
+static void handle_monster_punch(monster_t *monster, int *health) {
     int old_health = *health;
     *health -= monster->damage;
     *health = max(*health, 0);
@@ -149,8 +150,11 @@ void update_monsters(int py, int px, int *health) {
             continue;
         }
 
-        move_monster(&monsters[i], py, px);
-        punch_monster(&monsters[i], py, px, health);
+        handle_monster_movement(&monsters[i], py, px);
+
+		if (distance(py, px, monsters[i].y, monsters[i].x) == 1) {
+			handle_monster_punch(&monsters[i], health);
+		}
     }
 }
 

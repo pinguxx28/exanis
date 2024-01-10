@@ -14,7 +14,7 @@ weapon_t make_weapon(weapon_type type) {
     weapon.name = malloc(strlen(weapon_names[type]) + 1);
     strcpy(weapon.name, weapon_names[type]);
 
-	/* WARNING: Bad hard coded values */
+	/* values can be hard coded here because they are not used anywhere else */
     switch (type) {
 		case FIST:
 			weapon.damage = 2;

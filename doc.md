@@ -15,6 +15,7 @@
 	- create_ -> complex setup for suffix
 	- append_ -> stores suffix for later
 	- init_ -> makes suffix ready
+    - handle_ -> suffix subfunction
 	- update_ -> changes variables in suffix
 	- draw_ -> adds suffix to draw buffer
 	- clear_ -> removes suffix from draw buffer

@@ -13,6 +13,18 @@
 #include "msg_box.h"
 #include "monsters.h"
 
+static void set_new_player_pos(player_t *player) {
+	room_t *room = &rooms[random_i(0, num_rooms)];
+	bool on_item, on_monster;
+
+    do {
+        player->y = random_i(room->y, room->y + room->h);
+        player->x = random_i(room->x, room->x + room->w);
+		on_item = find_item(player->y, player->x) != NULL;
+		on_monster = find_monster(player->y, player->x) != NULL;
+    } while (on_item || on_monster);
+}
+
 player_t *init_player(void) {
     player_t *player = malloc(sizeof(player_t));
 
@@ -24,18 +36,7 @@ player_t *init_player(void) {
 
     player->weapon = make_weapon(FIST);
 
-	player->y = 0;
-	player->x = 0;
-
-	room_t *room = &rooms[random_i(0, num_rooms)];
-	bool on_item, on_monster;
-
-    do {
-        player->y = random_i(room->y, room->y + room->h);
-        player->x = random_i(room->x, room->x + room->w);
-		on_item = find_item(player->y, player->x) != NULL;
-		on_monster = find_monster(player->y, player->x) != NULL;
-    } while (on_item || on_monster);
+	set_new_player_pos(player);
 
     return player;
 }
@@ -98,10 +99,8 @@ static void pickup_player(player_t *player) {
         return;
     }
 
-	/* remove item from ground */
     remove_item(item);
 
-	/* insert item to inventory */
     switch (item->type) {
         case MONEY:
             player->money += item->amount;
@@ -122,10 +121,19 @@ static void decend_player(player_t *player) {
         load_msg_box("Can't decend here. ");
     }
 
-    /* TODO: make this better */
-    endwin();
-    printf("You decended with $%d\n", player->money);
-    exit(0);
+	clear();
+	int rows, cols;
+	getmaxyx(stdscr, rows, cols);
+	
+	const char str[] = "F L O O R   C O M P L E T E D";
+	mvprintw(rows / 2, (cols - strlen(str)) / 2, str);
+	getch();
+
+	clear();
+    create_map();
+    create_items();
+    create_monsters();
+	set_new_player_pos(player);
 }
 
 void update_player(player_t *player, int c) {
@@ -144,8 +152,7 @@ void update_player(player_t *player, int c) {
         default: load_msg_box("Unknown action %c. ", c); break;
     }
 
-    /* has to be here because it redraws the fov */
-    /* meaning it clears the old positions of monsters */
+    /* clears the old positions of monsters */
     reveal_partial_map(player->y, player->x, PLAYER_FOV);
 }
 

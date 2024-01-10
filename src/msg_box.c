@@ -16,21 +16,26 @@ char *msg_box = NULL;
 char *new_msg_box = NULL;
 
 void load_msg_box(char *msg, ...) {
-	/* TODO: improve */
-
-    va_list arg;
-    va_start(arg, msg);
+	/* not the most beautiful code */
+	/* please improve */
 
 	if (strlen(msg) > MAXSTRLEN) {
 		NC_ABORT("msg too long\n[%s]\naborting\n", msg);
 	}
-    char buf[81];
-    vsprintf(buf, msg, arg);
 
-    if (i + strlen(buf) > MAXSTRLEN) strcat(new_msg_box, buf);
-    else strcat(msg_box, buf);
+    va_list arg;
+    va_start(arg, msg);
 
-    i += strlen(buf);
+    char buffer[81];
+    vsprintf(buffer, msg, arg);
+
+    if (i + strlen(buffer) > MAXSTRLEN) {
+		strcat(new_msg_box, buffer);
+	} else {
+		strcat(msg_box, buffer);
+	}
+
+    i += strlen(buffer);
 
     va_end(arg);
 }
@@ -49,6 +54,7 @@ void clear_msg_box(void) {
 }
 
 void draw_msg_box(void) {
+	/* same case as for load_msg_box */
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR) | A_BOLD);
     mvprintw(MAP_HEIGHT + 1, 0, "%-80s", msg_box);
 

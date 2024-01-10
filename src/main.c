@@ -26,7 +26,7 @@ int main() {
 	/* exanis features */
     create_map();
     create_items();
-    init_monsters();
+    create_monsters();
     init_msg_box();
 
     player_t *player = init_player();

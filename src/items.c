@@ -65,33 +65,34 @@ void remove_item(item_t *item) {
     item->active = false;
 }
 
+static void set_item_rand_pos(int *y, int *x, int y1, int x1, int h, int w) {
+	do {
+		*y = random_i(y1, y1 + h);
+		*x = random_i(x1, x1 + w);
+	} while (find_item(*y, *x) != NULL);
+}
+
 void create_items(void) {
-	/* TODO: not the most elegant code but really can't be bothered rn tbh */
+	for (int i = 0; i < MAX_ITEMS; i++) {
+		items[i].active = false;
+	}
+
     for (int i = 0; i < num_rooms; i++) {
-        /* money */
-        for (int j = 0; j < random_i(0, 4); j++) {
-            int y, x;
+		int y, x;
 
-            do {
-                y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
-                x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
-            } while (find_item(y, x) != NULL);
-
+		int amount_of_money = random_i(0, 4);
+        for (int j = 0; j < amount_of_money; j++) {
+			set_item_rand_pos(&y, &x,
+				rooms[i].y, rooms[i].x, rooms[i].h, rooms[i].w);
             append_item(make_item(y, x, '$'));
         }
 
-        /* weapon */
-        /* 20% chance to spawn a weapon in a room */
-        if (random_i(0, 5) != 0) continue;
-
-        int y, x;
-
-        do {
-            y = random_i(rooms[i].y, rooms[i].y + rooms[i].h);
-            x = random_i(rooms[i].x, rooms[i].x + rooms[i].w);
-        } while (find_item(y, x) != NULL);
-
-        append_item(make_item(y, x, 't'));
+		bool create_weapon = random_i(0, 5) != 0;
+		if (create_weapon) {
+			set_item_rand_pos(&y, &x,
+				rooms[i].y, rooms[i].x, rooms[i].h, rooms[i].w);
+			append_item(make_item(y, x, 't'));
+		}
     }
 }
 

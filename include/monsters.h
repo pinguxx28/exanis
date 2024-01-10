@@ -22,7 +22,7 @@ monster_t make_monster(int y, int x, char symbol);
 void append_monster(monster_t monster);
 monster_t *find_monster(int y, int x);
 
-void init_monsters(void);
+void create_monsters(void);
 void update_monsters(int py, int px, int *health);
 void draw_monsters(int py, int px, float fov);
 

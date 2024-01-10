@@ -19,13 +19,13 @@
 
 
 
-int *map;
-int *seen_map;
+int *map = NULL;
+int *seen_map = NULL;
 
-int num_sections = 0;
+int num_sections;
 section_t sections[MAX_SECTIONS];
 
-int num_rooms = 0;
+int num_rooms;
 room_t rooms[MAX_SECTIONS];
 
 
@@ -94,8 +94,14 @@ void reveal_partial_map(int py, int px, float fov) {
 }
 
 static void init_maps(void) {
+	if (map != NULL) free(map);
+	if (seen_map != NULL) free(seen_map);
+
     map      = calloc(MAP_SIZE, sizeof(int));
     seen_map = calloc(MAP_SIZE, sizeof(int));
+
+	num_sections = 0;
+	num_rooms = 0;
 
     for (int i = 0; i < MAP_SIZE; i++) {
         map[i] = ' ';
@@ -129,25 +135,19 @@ static section_t append_section(section_t s) {
 }
 
 static void create_sections_recursive(section_t section) {
-    /* BSP algorithm */
-
-    /* end recursion if section is small enough */
     if (section.h <= SECTION_MIN_H || section.w <= SECTION_MIN_W) {
         append_section(section);
         return;
     }
 
-    /* force split in the desired direction */
     float size_ratio = 2;
     int split_horiz = rand() % 2;
 
-	/* TODO: figure out why code breaks if tthese ifs are swapped */
-    if (section.w * size_ratio > section.h) {
-        split_horiz = 0;
-    }
     if (section.h * size_ratio > section.w) {
         split_horiz = 1;
-    }
+    } else if (section.w * size_ratio > section.h) {
+		split_horiz = 0;
+	}
 
     section_t section1, section2;
     if (split_horiz) {
@@ -158,8 +158,8 @@ static void create_sections_recursive(section_t section) {
     } else {
         int split_point = random_i(7, section.w - 7);
         section1 = make_section(section.y, section.x, section.h, split_point);
-        section2 = make_section(section.y, section.x + split_point, section.h,
-                                section.w - split_point);
+        section2 = make_section(section.y, section.x + split_point,
+                                section.h, section.w - split_point);
     }
 
     create_sections_recursive(section1);
