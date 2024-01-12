@@ -1,7 +1,6 @@
 #ifndef COLORS_H
 #define COLORS_H
 
-/* color pair constants */
 enum {
     DEFAULT_COLOR_PAIR = 1,
     INVERSE_DEFAULT_COLOR_PAIR,
