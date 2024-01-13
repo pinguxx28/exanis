@@ -124,9 +124,20 @@ static void decend_player(player_t *player) {
 	clear();
 	int rows, cols;
 	getmaxyx(stdscr, rows, cols);
+	int y = rows / 2;
+	int x;
 	
 	const char str[] = "F L O O R   C O M P L E T E D";
-	mvprintw(rows / 2, (cols - strlen(str)) / 2, str);
+	x = (cols - strlen(str)) / 2;
+	mvprintw(y, x, str);
+
+	const int maxlen = 80;
+	char str2[maxlen];
+	snprintf(str2, maxlen, "money: $%d, exp: %d", player->money, 0);
+	x = (cols - strlen(str2)) / 2;
+	y++;
+	mvprintw(y, x, str2);
+
 	getch();
 
 	clear();
