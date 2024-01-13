@@ -33,6 +33,7 @@ monster_t make_monster(int y, int x, char symbol) {
         case 'x':
             monster.name = malloc(strlen("Bug") + 1);
             strcpy(monster.name, "Bug");
+			monster.exp_gain = 1;
 
             monster.health = 2;
             monster.damage = 1;
@@ -41,6 +42,7 @@ monster_t make_monster(int y, int x, char symbol) {
         case 'o':
             monster.name = malloc(strlen("Orc") + 1);
             strcpy(monster.name, "Orc");
+			monster.exp_gain = 5;
 
             monster.health = 6;
             monster.damage = 3;
@@ -143,12 +145,6 @@ static void handle_monster_punch(monster_t *monster, int *health) {
 void update_monsters(int py, int px, int *health) {
     for (int i = 0; i < MAX_MONSTERS; i++) {
         if (!monsters[i].active) continue;
-
-        if (monsters[i].health <= 0) {
-            monsters[i].active = false;
-            load_msg_box("%s died. ", monsters[i].name);
-            continue;
-        }
 
         handle_monster_movement(&monsters[i], py, px);
 

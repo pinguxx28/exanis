@@ -10,6 +10,7 @@ typedef struct {
     int y, x;
     char *name;
     char symbol;
+	int exp_gain;
 
     int health;
     int damage;

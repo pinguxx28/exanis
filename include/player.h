@@ -9,6 +9,7 @@ typedef struct {
     int y, x;
 
     int money;
+	int exp;
 
     int health;
     int damage;

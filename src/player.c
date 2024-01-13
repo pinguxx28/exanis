@@ -85,6 +85,12 @@ static void move_player(player_t *player, int c) {
 
 		load_msg_box("You hit %s with a %s, its HP: %d->%d! ",
 			monster->name, player->weapon.name, old_health, monster->health);
+		
+		if (monster->health > 0) return;
+
+		load_msg_box("%s died. ", monster->name);
+		player->exp += monster->exp_gain;
+		monster->active = false;
     } else if (valid_tile) {
         player->y = newy;
         player->x = newx;
@@ -127,16 +133,19 @@ static void decend_player(player_t *player) {
 	int y = rows / 2;
 	int x;
 	
+
 	const char str[] = "F L O O R   C O M P L E T E D";
 	x = (cols - strlen(str)) / 2;
-	mvprintw(y, x, str);
+	mvprintw(y++, x, str);
+
 
 	const int maxlen = 80;
 	char str2[maxlen];
-	snprintf(str2, maxlen, "money: $%d, exp: %d", player->money, 0);
+	snprintf(str2, maxlen, "money: $%d, exp: %d", player->money, player->exp);
+
 	x = (cols - strlen(str2)) / 2;
-	y++;
-	mvprintw(y, x, str2);
+	mvprintw(y++, x, str2);
+
 
 	getch();
 
@@ -171,7 +180,7 @@ void draw_player_stats(player_t player) {
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR) | A_BOLD);
 
     char stat_line[81];
-    snprintf(stat_line, 80, "$: %d, HP: %d, DMG: %d",
-			player.money, player.health, player.damage);
+    snprintf(stat_line, 80, "$: %d, HP: %d, DMG: %d, EXP: %d",
+			player.money, player.health, player.damage, player.exp);
     mvprintw(MAP_HEIGHT, 0, "%-80s", stat_line);
 }
