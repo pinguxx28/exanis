@@ -138,7 +138,7 @@ static void handle_monster_punch(monster_t *monster, int *health) {
     *health -= monster->damage;
     *health = max(*health, 0);
 
-    load_msg_box("%s hit you HP: %d->%d! ",
+    load_msg_box("%s hit you, your HP: %d->%d! ",
 		monster->name, old_health, *health);
 }
 
