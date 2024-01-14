@@ -8,7 +8,7 @@ typedef enum {
     SWORD,
     CLUB,
     MACHETE,
-	WEAPON_TYPE_N,
+	WEAPON_TYPE_N
 } weapon_type;
 
 typedef struct {
