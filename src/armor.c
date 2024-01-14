@@ -6,8 +6,8 @@
 #include "debug.h"
 
 armor_t make_armor(armor_type type) {
-    const char *armor_names[armor_TYPE_N] =
-		{ "fist", "sword" };
+    const char *armor_names[ARMOR_TYPE_N] =
+		{ "fist", "mail" };
     armor_t armor;
 
     armor.type = type;

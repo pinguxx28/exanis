@@ -34,6 +34,15 @@ item_t make_item(int y, int x, char symbol) {
 			item.name = malloc(strlen(item.weapon.name) + 1);
             strcpy(item.name, item.weapon.name);
             break;
+		case 'a':
+            item.type = ARMOR;
+            item.amount = 1;
+            item.armor = make_armor(MAIL);
+
+			item.name = malloc(strlen(item.armor.name) + 1);
+            strcpy(item.name, item.armor.name);
+            break;
+			break;
         default:
             NC_ABORT("unrecognized symbol, in make_item, %c\n", symbol);
     }
@@ -72,6 +81,10 @@ static void set_item_rand_pos(int *y, int *x, int y1, int x1, int h, int w) {
 	} while (find_item(*y, *x) != NULL);
 }
 
+static void set_item_rand_pos_in_room(int *y, int *x, int i) {
+	set_item_rand_pos(y, x, rooms[i].y, rooms[i].x, rooms[i].h, rooms[i].w);
+}
+
 void create_items(void) {
 	for (int i = 0; i < MAX_ITEMS; i++) {
 		items[i].active = false;
@@ -82,16 +95,20 @@ void create_items(void) {
 
 		int amount_of_money = random_i(0, 4);
         for (int j = 0; j < amount_of_money; j++) {
-			set_item_rand_pos(&y, &x,
-				rooms[i].y, rooms[i].x, rooms[i].h, rooms[i].w);
+			set_item_rand_pos_in_room(&y, &x, i);
             append_item(make_item(y, x, '$'));
         }
 
-		bool create_weapon = random_i(0, 5) != 0;
+		bool create_weapon = random_i(0, 5) == 0;
 		if (create_weapon) {
-			set_item_rand_pos(&y, &x,
-				rooms[i].y, rooms[i].x, rooms[i].h, rooms[i].w);
+			set_item_rand_pos_in_room(&y, &x, i);
 			append_item(make_item(y, x, 't'));
+		}
+
+		bool create_armor = random_i(0, 7) == 0;
+		if (create_armor) {
+			set_item_rand_pos_in_room(&y, &x, i);
+			append_item(make_item(y, x, 'a'));
 		}
     }
 }
@@ -105,6 +122,7 @@ void draw_items(int py, int px, float fov) {
         switch (items[i].symbol) {
             case '$': attron(COLOR_PAIR( MONEY_COLOR_PAIR)); break;
             case 't': attron(COLOR_PAIR(WEAPON_COLOR_PAIR)); break;
+			case 'a': attron(COLOR_PAIR( ARMOR_COLOR_PAIR)); break;
         }
 
 

@@ -3,9 +3,11 @@
 
 #include <stdbool.h>
 #include "weapon.h"
+#include "armor.h"
 
 typedef enum {
     WEAPON,
+	ARMOR,
     MONEY,
 } item_type;
 
@@ -18,9 +20,9 @@ typedef struct {
 
     /* type specific values */
     item_type type;
-	/* only set when type is WEAPON */
-	/* otherwise it is undefined */
     weapon_t weapon; 
+	armor_t armor;
+
 } item_t;
 
 item_t make_item(int y, int x, char symbol);

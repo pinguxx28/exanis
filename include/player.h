@@ -4,6 +4,7 @@
 #define PLAYER_FOV 1000
 
 #include "weapon.h"
+#include "armor.h"
 
 typedef struct {
     int y, x;
@@ -14,8 +15,10 @@ typedef struct {
     int health;
     int damage;
     int speed;
+	int protection;
 
     weapon_t weapon;
+	armor_t armor;
 } player_t;
 
 player_t *init_player(void);

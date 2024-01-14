@@ -115,8 +115,13 @@ static void pickup_player(player_t *player) {
         case WEAPON:
 			player->weapon = item->weapon;
 			player->damage = item->weapon.damage;
-            load_msg_box("Picked up and eqiupped a %s. ", item->weapon.name);
+            load_msg_box("Picked up and eqiupped a %s. ", item->name);
             break;
+		case ARMOR:
+			player->armor = item->armor;
+			player->protection = item->armor.protection;
+            load_msg_box("Picked up and eqiupped a %s. ", item->name);
+			break;
         default:
 			NC_ABORT("Unknown item: %s (type: %d)\n", item->name, item->type);
     }
@@ -180,7 +185,7 @@ void draw_player_stats(player_t player) {
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR) | A_BOLD);
 
     char stat_line[81];
-    snprintf(stat_line, 80, "$: %d, HP: %d, DMG: %d, EXP: %d",
-			player.money, player.health, player.damage, player.exp);
+    snprintf(stat_line, 80, "$: %d, HP: %d, DMG: %d, PROT: %d, EXP: %d",
+			player.money, player.health, player.damage, player.protection, player.exp);
     mvprintw(MAP_HEIGHT, 0, "%-80s", stat_line);
 }

@@ -28,4 +28,5 @@ void init_color_pairs(void) {
     init_pair(       MONSTERS_COLOR_PAIR, COLOR_RED    , COLOR_BLACK);
     init_pair(            ORC_COLOR_PAIR, COLOR_GREEN  , COLOR_BLACK);
     init_pair(         WEAPON_COLOR_PAIR, COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(          ARMOR_COLOR_PAIR, COLOR_MAGENTA, COLOR_BLACK);
 }
