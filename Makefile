@@ -2,6 +2,11 @@
 # But modified a bit
 # 16.12.2023
 
+COL1  := \033[0;34m
+COL2  := \033[0;35m
+BOLD  := \033[1m
+RESET := \033[0m
+
 CC := gcc
 CFLAGS := -Wall -Wextra -std=c99 -g
 LDFLAGS := -lncurses -lm
@@ -18,10 +23,12 @@ EXECUTABLE := $(BINDIR)/exanis
 $(shell mkdir -p $(OBJDIR) $(BINDIR))
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+	@echo "$(COL2)Linking all files into $(BOLD)$@$(RESET)"
+	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) $(CFLAGS) -I$(INCDIR) -c -o $@ $<
+	@echo "$(COL1)Compiling $(BOLD)$<$(RESET)"
+	@$(CC) $(CFLAGS) -I$(INCDIR) -c -o $@ $<
 
 .PHONY: clean
 clean:
