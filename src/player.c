@@ -29,12 +29,15 @@ player_t *init_player(void) {
     player_t *player = malloc(sizeof(player_t));
 
 	player->money = 0;
+	player->exp = 0;
 
     player->health = 15;
     player->damage = 2;
     player->speed = 1;
+	player->protection = 1;
 
     player->weapon = make_weapon(FIST);
+	player->armor  = make_armor (NONE);
 
 	set_new_player_pos(player);
 
