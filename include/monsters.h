@@ -24,7 +24,7 @@ void append_monster(monster_t monster);
 monster_t *find_monster(int y, int x);
 
 void create_monsters(void);
-void update_monsters(int py, int px, int *health);
+void update_monsters(int py, int px, int *health, int prot);
 void draw_monsters(int py, int px, float fov);
 
 #endif /* MONSTERS_H */

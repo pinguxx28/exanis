@@ -38,7 +38,7 @@ int main() {
 
         /* updating */
         update_player(player, c);
-        update_monsters(player->y, player->x, &player->health);
+        update_monsters(player->y, player->x, &player->health, player->protection);
 
         /* map drawing */
         draw_map();

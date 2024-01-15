@@ -1,5 +1,6 @@
 #include "monsters.h"
 
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ncurses.h>
@@ -133,23 +134,23 @@ static void handle_monster_movement(monster_t *monster, int py, int px) {
     }
 }
 
-static void handle_monster_punch(monster_t *monster, int *health) {
+static void handle_monster_punch(monster_t *monster, int *health, int prot) {
     int old_health = *health;
-    *health -= monster->damage;
+    *health -= (int)ceil((float) monster->damage / prot);
     *health = max(*health, 0);
 
     load_msg_box("%s hit you, your HP: %d->%d! ",
 		monster->name, old_health, *health);
 }
 
-void update_monsters(int py, int px, int *health) {
+void update_monsters(int py, int px, int *health, int prot) {
     for (int i = 0; i < MAX_MONSTERS; i++) {
         if (!monsters[i].active) continue;
 
         handle_monster_movement(&monsters[i], py, px);
 
 		if (distance(py, px, monsters[i].y, monsters[i].x) == 1) {
-			handle_monster_punch(&monsters[i], health);
+			handle_monster_punch(&monsters[i], health, prot);
 		}
     }
 }
