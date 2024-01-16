@@ -30,6 +30,7 @@ player_t *init_player(void) {
 
 	player->money = 0;
 	player->exp = 0;
+	player->dun_lvl = 1;
 
     player->health = 15;
     player->damage = 2;
@@ -135,6 +136,8 @@ static void decend_player(player_t *player) {
         load_msg_box("Can't decend here. ");
     }
 
+	player->dun_lvl++;
+
 	clear();
 	int rows, cols;
 	getmaxyx(stdscr, rows, cols);
@@ -188,7 +191,9 @@ void draw_player_stats(player_t player) {
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR) | A_BOLD);
 
     char stat_line[81];
-    snprintf(stat_line, 80, "$: %d, HP: %d, DMG: %d, PROT: %d, EXP: %d",
-			player.money, player.health, player.damage, player.protection, player.exp);
+    snprintf(stat_line, 80,
+			"DLVL: %d, $: %d, HP: %d, DMG: %d, PROT: %d, EXP: %d",
+			player.dun_lvl, player.money, player.health,
+			player.damage, player.protection, player.exp);
     mvprintw(MAP_HEIGHT, 0, "%-80s", stat_line);
 }

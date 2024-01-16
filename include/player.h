@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#define PLAYER_FOV 1000
+#define PLAYER_FOV 2.5
 
 #include "weapon.h"
 #include "armor.h"
@@ -11,6 +11,7 @@ typedef struct {
 
     int money;
 	int exp;
+	int dun_lvl;
 
     int health;
     int damage;
