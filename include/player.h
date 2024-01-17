@@ -18,6 +18,10 @@ typedef struct {
     int speed;
 	int protection;
 
+	/* effects */
+	int timer;
+	bool regen;
+
     weapon_t weapon;
 	armor_t armor;
 } player_t;

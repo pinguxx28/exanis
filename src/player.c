@@ -37,6 +37,9 @@ player_t *init_player(void) {
     player->speed = 1;
 	player->protection = 1;
 
+	player->timer = 0;
+	player->regen = false;
+
     player->weapon = make_weapon(FIST);
 	player->armor  = make_armor (NONE);
 
@@ -167,6 +170,14 @@ static void decend_player(player_t *player) {
 	set_new_player_pos(player);
 }
 
+static void handle_effects(player_t *player) {
+	player->timer = (player->timer + 1) % 60;
+
+	if (player->regen) {
+		player->health += (player->timer % 10) ? 0 : 1;
+	}
+}
+
 void update_player(player_t *player, int c) {
     switch (c) {
         case 'k':
@@ -182,6 +193,8 @@ void update_player(player_t *player, int c) {
 		case ' ': break; /* do nothing */
         default: load_msg_box("Unknown action %c. ", c); break;
     }
+	
+	handle_effects(player);
 
     /* clears the old positions of monsters */
     reveal_partial_map(player->y, player->x, PLAYER_FOV);
@@ -191,9 +204,11 @@ void draw_player_stats(player_t player) {
     attrset(COLOR_PAIR(DEFAULT_COLOR_PAIR) | A_BOLD);
 
     char stat_line[81];
+	char regen_char = player.regen ? 'R' : ' ';
     snprintf(stat_line, 80,
-			"DLVL: %d, $: %d, HP: %d, DMG: %d, PROT: %d, EXP: %d",
+			"DLVL: %d, $: %d, HP: %d, DMG: %d, PROT: %d, EXP: %d, EFF: %c",
 			player.dun_lvl, player.money, player.health,
-			player.damage, player.protection, player.exp);
+			player.damage, player.protection, player.exp,
+			regen_char);
     mvprintw(MAP_HEIGHT, 0, "%-80s", stat_line);
 }
