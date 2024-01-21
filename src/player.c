@@ -31,8 +31,8 @@ player_t *init_player(bool godmode) {
 	player->godmode = godmode;
 
 	player->money = 0;
-	player->exp = 0;
-	player->dun_lvl = 1;
+	player->experience = 0;
+	player->dungeon_level = 1;
 
     player->health = 15;
     player->damage = 2;
@@ -98,7 +98,7 @@ static void move_player(player_t *player, int c) {
 		if (monster->health > 0) return;
 
 		load_msg_box("%s died. ", monster->name);
-		player->exp += monster->exp_gain;
+		player->experience += monster->exp_gain;
 		monster->active = false;
     } else if (valid_tile) {
         player->y = newy;
@@ -141,7 +141,7 @@ static void decend_player(player_t *player) {
         load_msg_box("Can't decend here. ");
     }
 
-	player->dun_lvl++;
+	player->dungeon_level++;
 
 	clear();
 	int rows, cols;
@@ -157,7 +157,7 @@ static void decend_player(player_t *player) {
 
 	const int maxlen = 80;
 	char str2[maxlen];
-	snprintf(str2, maxlen, "money: $%d, exp: %d", player->money, player->exp);
+	snprintf(str2, maxlen, "money: $%d, exp: %d", player->money, player->experience);
 
 	x = (cols - strlen(str2)) / 2;
 	mvprintw(y++, x, str2);
@@ -192,7 +192,7 @@ static void draw_player_death_screen(player_t *player) {
 	const char str[] = "G A M E   O V E R";
 	const int maxlen = 80;
 	char str2[maxlen];
-	snprintf(str2, maxlen, "money: $%d, exp: %d", player->money, player->exp);
+	snprintf(str2, maxlen, "money: $%d, exp: %d", player->money, player->experience);
 
 	x = (cols - strlen(str)) / 2;
 	mvprintw(y++, x, str);
@@ -237,8 +237,8 @@ void draw_player_stats(player_t player) {
 	char regen_char = player.regen ? 'R' : ' ';
     snprintf(stat_line, 80,
 			"DLVL: %d, $: %d, HP: %d, DMG: %d, PROT: %d, EXP: %d, EFF: %c",
-			player.dun_lvl, player.money, player.health,
-			player.damage, player.protection, player.exp,
+			player.dungeon_level, player.money, player.health,
+			player.damage, player.protection, player.experience,
 			regen_char);
     mvprintw(MAP_HEIGHT, 0, "%-80s", stat_line);
 }

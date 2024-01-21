@@ -12,8 +12,8 @@ typedef struct {
 	bool godmode;
 
     int money;
-	int exp;
-	int dun_lvl;
+	int experience;
+	int dungeon_level;
 
     int health;
     int damage;
