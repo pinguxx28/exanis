@@ -1,14 +1,20 @@
-#include "colors.h"
-#include "items.h"
 #include "map.h"
-#include "monsters.h"
-#include "msg_box.h"
+#include "items.h"
+#include "colors.h"
 #include "player.h"
-#include <ncurses.h>
-#include <stdlib.h>
+#include "msg_box.h"
+#include "monsters.h"
 #include <time.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ncurses.h>
 
-int main() {
+int main(int argc, char *argv[]) {
+	bool godmode = false;
+	if (argc == 2 && !strcmp(argv[1], "godmode")) {
+		godmode = true;
+	}
+
 	/* non-ncurses setup */
     srand(time(0));
 
@@ -29,7 +35,7 @@ int main() {
     create_monsters();
     init_msg_box();
 
-    player_t *player = init_player();
+    player_t *player = init_player(godmode);
 
     int c = ' ';
 	do {

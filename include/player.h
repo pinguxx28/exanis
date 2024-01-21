@@ -9,6 +9,8 @@
 typedef struct {
     int y, x;
 
+	bool godmode;
+
     int money;
 	int exp;
 	int dun_lvl;
@@ -26,7 +28,7 @@ typedef struct {
 	armor_t armor;
 } player_t;
 
-player_t *init_player(void);
+player_t *init_player(bool godmode);
 void clear_player(player_t);
 void update_player(player_t *, int c);
 void draw_player(player_t);

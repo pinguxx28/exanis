@@ -25,8 +25,10 @@ static void set_new_player_pos(player_t *player) {
     } while (on_item || on_monster);
 }
 
-player_t *init_player(void) {
+player_t *init_player(bool godmode) {
     player_t *player = malloc(sizeof(player_t));
+
+	player->godmode = godmode;
 
 	player->money = 0;
 	player->exp = 0;
@@ -178,7 +180,35 @@ static void handle_effects(player_t *player) {
 	}
 }
 
+static void draw_player_death_screen(player_t *player) {
+	if (player->godmode) return;
+
+	clear();
+	int rows, cols;
+	getmaxyx(stdscr, rows, cols);
+	int y = rows / 2;
+	int x;
+
+	const char str[] = "G A M E   O V E R";
+	const int maxlen = 80;
+	char str2[maxlen];
+	snprintf(str2, maxlen, "money: $%d, exp: %d", player->money, player->exp);
+
+	x = (cols - strlen(str)) / 2;
+	mvprintw(y++, x, str);
+	x = (cols - strlen(str2)) / 2;
+	mvprintw(y++, x, str2);
+
+	while (getch() != ' ');
+	endwin();
+	exit(0);
+}
+
 void update_player(player_t *player, int c) {
+	if (player->health == 0) {
+		draw_player_death_screen(player);
+	}
+
     switch (c) {
         case 'k':
         case 'j':
